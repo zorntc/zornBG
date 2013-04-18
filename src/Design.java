@@ -136,19 +136,10 @@ public class Design {
 	}
 }
 
-class Attribute{
-	private String name;
-	private boolean readOnly = true;
-	
-	public String toString(){
-		return name;
-	}
-}
-
 class Table implements Comparable<Table>{	// compare tables base on temperature
 	String name = null;
 	private String partitionAttr = null;
-	private String secIndex = null;
+	private LinkedList<String> secIndex = new LinkedList<String>();
 	boolean replication = true;
 	private double tableSize;		// for temperature
 	private int numTxn;				// for temperature
@@ -184,9 +175,9 @@ class Table implements Comparable<Table>{	// compare tables base on temperature
 			if(me.getValue() < max)
 				continue;
 			if(maxMax <= me.getValue()){
-				if(!modifiedCol.contains(partitionAttr)){
+				if(!modifiedCol.contains(partitionAttr) && partitionAttr != null){	// partitionAttr is read-only, throw partitionAttr to secIndex
 					max = maxMax;
-					secIndex = partitionAttr;
+					secIndex.add(partitionAttr);
 				}
 				maxMax = me.getValue();
 				partitionAttr = me.getKey();
@@ -195,14 +186,14 @@ class Table implements Comparable<Table>{	// compare tables base on temperature
 				if(!modifiedCol.contains(me.getKey()))
 					continue;
 				max = me.getValue();
-				secIndex = me.getKey();
+				secIndex.add(me.getKey());
 			}
 		}
 		attr = null;	// free attr TreeMap
 		if(partitionAttr == null)
 			partitionAttr = "NIL";
-		if(secIndex == null)
-			secIndex = "NIL";
+		if(secIndex.size() == 0)
+			secIndex.add("NIL");
 	}
 
 	public String getPartAttr(){
@@ -211,8 +202,8 @@ class Table implements Comparable<Table>{	// compare tables base on temperature
 		return partitionAttr;
 	}
 
-	public String getSecIndex(){
-		if(secIndex == null)
+	public LinkedList<String> getSecIndex(){
+		if(secIndex.size() == 0)
 			computePartAttrSecIndex();
 		return secIndex;
 	}
