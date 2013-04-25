@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queries>
+  <Query>
+  <syntax>Select u.* from USER u where u.userID=?</syntax>
+  </Query>
+  <Query>
+  <syntax>SELECT u.* from USER u, CONFFRIENDSHIP f where f.InviteeID=? and f.InviterID=u.UserID</syntax>
+  </Query>
+  <Query>
+  <syntax>SELECT u.* from USER u, PENDFRIENDSHIP f where f.InviteeID=? AND u.UserID = f.inviteeID</syntax>
+  </Query>
+  <Query>
+  <syntax>Select u.* from USER u where u.userID=?</syntax>
+  </Query>
+  <Query>
+  <syntax>DELETE from PENDFRIENDSHIP f where f.inviteeID=? and f.inviterID=?</syntax>
+  </Query>
+  <Query>
+  <syntax>DELETE from PENDFRIENDSHIP f where f.inviteeID=? and f.inviterID=?</syntax>
+  </Query>
+  <Query>
+  <syntax>DELETE from CONFFRIENDSHIP f where f.inviteeID=? and f.inviterID=?</syntax>
+  </Query>
+  
+  <!--<Query>
+  <syntax>INSERT INTO pendFriendship (inviteeID, InviterID) value (?,?)</syntax>
+  </Query>-->
+  <!--<Query>
+  <syntax>DELETE from pendFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
+  <syntax>INSERT INTO confFriendship (inviteeID, InviterID) value (?,?)</syntax>
+  <syntax>INSERT INTO confFriendship (InviterID, inviteeID) value (?,?)</syntax>
+  </Query>
+  <Query>
+  <syntax>DELETE from pendFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
+  </Query>
+  <Query>
+  <syntax>DELETE from confFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
+  <syntax>DELETE from confFriendship f where f.inviterID=? and f.inviteeID=?</syntax>
+  </Query>-->
+  <Query>
+  <syntax>SELECT * from RESOURCES r where r.walluserid=? ORDER BY r.rid DESC LIMIT 20</syntax>
+  </Query>
+  <Query>
+  <syntax>SELECT * from MANIPULATION m where m.rid=?</syntax>
+  </Query>
+  <Query>
+  <syntax>SELECT * from RESOURCES r where r.walluserid=? ORDER BY r.rid DESC LIMIT 20</syntax>
+  </Query>
+  <!-- <Query>
+  <syntax>INSERT INTO manipulation (mid, creatorid, rid, modifierid, timestamp, type, content) VALUES (?, ?, ?, ?, ?, ?, ?)</syntax>
+  </Query>-->
+  <Query>
+  <syntax>DELETE from MANIPULATION m where m.mid=? AND m.rid=?</syntax>
+  </Query>
+  
+</Queries>

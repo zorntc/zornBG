@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Tables>
+  <Table type="permanent">
+        <Name>User</Name>
+        <Attributes>UserID:int,USERNAME:String,PW:String,FNAME:String,LNAME:String,GENDER:String,DOB:String,JDATE:String,LDATE:String,ADDRESS:String,EMAIL:String,TEL:String,confCnt:int,pendCnt:int,rscCnt:int,PM:UserID</Attributes>
+  </Table>
+  <Table type="contract">
+        <Name>Friends</Name>
+        <Attributes>userid1:int,userid2:int,status:string</Attributes>
+ </Table>
+  <Table type="permanent">
+       <Name>Resources</Name>
+        <Attributes>rid:int,creatorid:int,walluserid:int,body:String,doc:String</Attributes>
+ </Table>
+  <Table type="permanent">
+       <Name>Manipulation</Name>
+        <Attributes>mid:int,modifierid:int,rid:int,resourcecreatorid:int,timestamp:String,type:String,content:String</Attributes>
+ </Table>
+</Tables>
