@@ -6,9 +6,9 @@ public class Design {
 		9,1,1,1,1,
 		9,1,1,1,1};
 	
-	static String[] actionName = {"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
-		"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
-		"AcceptFriend", "AcceptFriend", "AcceptFriend", "ViewProfile", "ViewProfile"};
+	static String[] actionName = {"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
+		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
+		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "View Profile, VP", "View Profile, VP"};
 
 	static boolean[] readOnly = {};
 
@@ -141,16 +141,28 @@ public class Design {
 	}
 
 	
-	public static void main(String[] args){
+	static void passArgumets(){
+		String[] nil = null;
+		
 		// passing Arpit xml file 
-		HorticultureFinalProject.main(args);
+		HorticultureFinalProject.main(nil);
 		
 		// Get entries from HorticultureFinalProject
 		column = HorticultureFinalProject.getAttributeNames(column);
 		table = HorticultureFinalProject.getTableNames(table);
 		queryCommand = HorticultureFinalProject.getQueryNames(queryCommand);
 		readOnly = HorticultureFinalProject.getReadOnly(readOnly);
-	    
+		actionName = HorticultureFinalProject.getActionNames(actionName);
+				
+		int i;
+		for(WorkloadExtractor wle : HorticultureFinalProject.workloadExtractor){
+			for(i = actionName.length - 1; i >= 0; i--){
+				if(actionName[i].equalsIgnoreCase(wle.getAction()))
+					workloadCnt[i] = Integer.parseInt(wle.getFrequency());
+			}
+		}
+		
+		
 		/* DEBUG
 		for(int i=0;i<readOnly.length;i++)			
 	           System.out.println(column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+queryCommand[i]);
@@ -160,6 +172,11 @@ public class Design {
 			System.err.println("arrays length is inconsistent: " + isArgLengthEqual());
 			System.exit(1);
 		}
+	}
+	
+	public static void main(String[] args){
+		
+		passArgumets();
 		
 		Design best = new Design();
 		best.init();

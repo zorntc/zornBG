@@ -198,6 +198,8 @@ public class HorticultureFinalProject{
     static ArrayList<String> QueryNames = new ArrayList<String>();
     
     /* Zorn added start */
+    static ArrayList<String> ActionNames = new ArrayList<String>();
+
     public static String[] getAttributeNames(String[] sa){
     	return AttributeNames.toArray(sa);
     }
@@ -208,6 +210,15 @@ public class HorticultureFinalProject{
  
     public static String[] getQueryNames(String[] sa){
     	return QueryNames.toArray(sa);
+    }
+
+    public static String[] getActionNames(String[] sa){
+    	System.out.println("=-=-= !!! getActionNames() not finished yet, need Arpit's code. =-=-=");
+    	String[] ret = {"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
+    		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
+    		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "View Profile, VP", "View Profile, VP"};
+    	return ret;
+    	// return ActionNames.toArray(sa);
     }
 
     public static boolean[] getReadOnly(boolean[] a){
