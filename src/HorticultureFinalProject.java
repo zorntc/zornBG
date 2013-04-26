@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -192,10 +193,41 @@ public class HorticultureFinalProject{
     }
    
    
-    static ArrayList AttributeNames = new ArrayList();
-    static ArrayList TableNames = new ArrayList();
-    static ArrayList QueryNames = new ArrayList();
-   
+    static ArrayList<String> AttributeNames = new ArrayList<String>();
+    static ArrayList<String> TableNames = new ArrayList<String>();
+    static ArrayList<String> QueryNames = new ArrayList<String>();
+    
+    /* Zorn added start */
+    public static String[] getAttributeNames(String[] sa){
+    	return AttributeNames.toArray(sa);
+    }
+    
+    public static String[] getTableNames(String[] sa){
+    	return TableNames.toArray(sa);
+    }
+ 
+    public static String[] getQueryNames(String[] sa){
+    	return QueryNames.toArray(sa);
+    }
+
+    public static boolean[] getReadOnly(boolean[] a){
+    	boolean[] ret = new boolean[QueryNames.size()];
+    	int i;
+    	String tmp;
+    	for(i = QueryNames.size() - 1; i >= 0; i--){
+    		tmp = QueryNames.get(i);
+    		if(tmp.equalsIgnoreCase("UPDATE") || tmp.equalsIgnoreCase("INSERT") || tmp.equalsIgnoreCase("DELETE"))
+    			ret[i] = false;
+    		else if(tmp.equalsIgnoreCase("SELECT"))
+    			ret[i] = true;
+    		else{
+    			ret[i] = false;
+    			System.err.println("Not supported query command: " + tmp);
+    		}
+    	}
+    	return ret;
+    }
+    /* Zorn added end */    
    
     public static void printIndexes(String string, char ch,ArrayList k) {
         int index = 0;

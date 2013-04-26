@@ -2,25 +2,42 @@ import java.util.*;
 
 public class Design {
 
+	static int[] workloadCnt = {8,7,100,1,1,
+		9,1,1,1,1,
+		9,1,1,1,1};
+	
+	static String[] actionName = {"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
+		"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
+		"AcceptFriend", "AcceptFriend", "AcceptFriend", "ViewProfile", "ViewProfile"};
 
+	static boolean[] readOnly = {};
+
+	static String[] column = {};
+	static String[] table = {};
+	static String[] queryCommand = {};
+
+/*
  	// static String[] arguments = {"workloadCnt", "actionName", "readOnly", "column", "table"};
-	final static int[] workloadCnt = {8,7,100,1,1,
+	static int[] workloadCnt = {8,7,100,1,1,
 		9,1,1,1,1,
 		1,1};
-	final static String[] actionName = {"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
+	static String[] actionName = {"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
 		"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
 		"ViewProfile", "ViewProfile"};
-	final static boolean[] readOnly = {false, false, false, false, false, 
+	static boolean[] readOnly = {false, false, false, false, false, 
 		false, false, false, false, false,  
 		false, false};
-	final static String[] column = {"inviteeID","inviteeID","inviterID","inviterID","inviteeID",
+
+	static String[] column = {"inviteeID","inviteeID","inviterID","inviterID","inviteeID",
 		"inviteeID","inviteeID","inviterID","inviteeID","inviteeID",
 		"userID","userID"};
-	final static String[] table = {"pendfriendship", "pendfriendship", "pendfriendship", "pendfriendship", "conffriendship",
+
+	static String[] table = {"pendfriendship", "pendfriendship", "pendfriendship", "pendfriendship", "conffriendship",
 		"conffriendship", "conffriendship", "conffriendship", "conffriendship", "conffriendship",
 		"User", "User"};
 
-/*
+*/
+	/*
  	Previous test for ROUTING ATTRIBUTE; 11am, Apr 16 
 	final static int[] workloadCnt = {1,1,1,1,1,1};
 	final static String[] actionName = {"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend"};
@@ -103,15 +120,15 @@ public class Design {
 	}
 
 	private void printlog(){
-		System.out.println("==PARTITION & SECONDARY INDEX==");
+		System.out.println("== PARTITION & SECONDARY INDEX ==");
 		for(Table tl: partitionList){
 			System.out.printf("partition %s by %s, second index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
 		}
-		System.out.println("==REPLICATION==");
+		System.out.println("== REPLICATION ==");
 		for(Table tl: replicationList){
 			System.out.printf("replicate %s\n", tl);
 		}
-		System.out.println("==ROUTING ATTRIBUTE==");
+		System.out.println("== ROUTING ATTRIBUTE ==");
 		for(Procedure p: routAtrrList){
 			System.out.printf("%s's routing attribute is %s\n", p.name, p.getRoutAtrr());
 		}
@@ -125,11 +142,25 @@ public class Design {
 
 	
 	public static void main(String[] args){
+		// passing Arpit xml file 
+		HorticultureFinalProject.main(args);
+		
+		// Get entries from HorticultureFinalProject
+		column = HorticultureFinalProject.getAttributeNames(column);
+		table = HorticultureFinalProject.getTableNames(table);
+		queryCommand = HorticultureFinalProject.getQueryNames(queryCommand);
+		readOnly = HorticultureFinalProject.getReadOnly(readOnly);
+	    
+		/* DEBUG
+		for(int i=0;i<readOnly.length;i++)			
+	           System.out.println(column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+queryCommand[i]);
+	   */
+		
 		if(isArgLengthEqual() != null){
 			System.err.println("arrays length is inconsistent: " + isArgLengthEqual());
 			System.exit(1);
 		}
-
+		
 		Design best = new Design();
 		best.init();
 		best.printlog();
