@@ -2,14 +2,9 @@ import java.util.*;
 
 public class Design {
 
-	static int[] workloadCnt = {8,7,100,1,1,
-		9,1,1,1,1,
-		9,1,1,1,1};
+	static int[] workloadCnt = {};
 	
-	static String[] actionName = {"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
-		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
-		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "View Profile, VP", "View Profile, VP"};
-
+	static String[] actionName = {};
 	static boolean[] readOnly = {};
 
 	static String[] column = {};
@@ -130,7 +125,7 @@ public class Design {
 		}
 		System.out.println("== ROUTING ATTRIBUTE ==");
 		for(Procedure p: routAtrrList){
-			System.out.printf("%s's routing attribute is %s\n", p.name, p.getRoutAtrr());
+			System.out.printf("Routing attribute of %s = %s\n", p.name, p.getRoutAtrr());
 		}
 	}
 	
@@ -153,20 +148,26 @@ public class Design {
 		queryCommand = HorticultureFinalProject.getQueryNames(queryCommand);
 		readOnly = HorticultureFinalProject.getReadOnly(readOnly);
 		actionName = HorticultureFinalProject.getActionNames(actionName);
+		workloadCnt = new int[actionName.length];
 				
 		int i;
-		for(WorkloadExtractor wle : HorticultureFinalProject.workloadExtractor){
-			for(i = actionName.length - 1; i >= 0; i--){
-				if(actionName[i].equalsIgnoreCase(wle.getAction()))
-					workloadCnt[i] = Integer.parseInt(wle.getFrequency());
+		String s;
+		
+		for(i = actionName.length - 1; i >= 0; i--){
+			for(WorkloadExtractor wle : HorticultureFinalProject.workloadExtractor){
+				s = wle.getAction();
+			if(actionName[i].equalsIgnoreCase(s)){
+				workloadCnt[i] = Integer.parseInt(wle.getFrequency());
+				break;
+				}
 			}
 		}
 		
 		
-		/* DEBUG
-		for(int i=0;i<readOnly.length;i++)			
-	           System.out.println(column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+queryCommand[i]);
-	   */
+		/* DEBUG */
+		for(i=0;i<readOnly.length;i++)			
+	           System.out.println(column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+readOnly[i]);
+	   
 		
 		if(isArgLengthEqual() != null){
 			System.err.println("arrays length is inconsistent: " + isArgLengthEqual());
@@ -207,6 +208,7 @@ class Table implements Comparable<Table>{	// compare tables base on temperature
 	}
 	
 	public void inc(String s, int cnt){
+		s = s.toLowerCase();
 		if(attr.containsKey(s)){
 			int val = attr.remove(s);
 			attr.put(s, val + cnt);
@@ -323,7 +325,7 @@ class Procedure{
 			routAtrr = me.getKey();
 		}
 		if(routAtrr == null)
-			routAtrr = "NIL";
+			routAtrr = attrCdt.getFirst() + " [Not a valid routing parameter]";
 		attr = null;	// free attr TreeMap
 		return routAtrr;
 	}

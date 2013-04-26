@@ -1,6 +1,5 @@
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,9 +8,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 
-/**
- * @author Arpit
- */
+
 public class HorticultureFinalProject{
    
     static SchemaExtractor[] schemaExtractor= new SchemaExtractor[4];
@@ -196,10 +193,10 @@ public class HorticultureFinalProject{
     static ArrayList<String> AttributeNames = new ArrayList<String>();
     static ArrayList<String> TableNames = new ArrayList<String>();
     static ArrayList<String> QueryNames = new ArrayList<String>();
-    
-    /* Zorn added start */
     static ArrayList<String> ActionNames = new ArrayList<String>();
+    static ArrayList<String> FrequencyNames = new ArrayList<String>();
 
+    /* Zorn added start */
     public static String[] getAttributeNames(String[] sa){
     	return AttributeNames.toArray(sa);
     }
@@ -213,12 +210,7 @@ public class HorticultureFinalProject{
     }
 
     public static String[] getActionNames(String[] sa){
-    	System.out.println("=-=-= !!! getActionNames() not finished yet, need Arpit's code. =-=-=");
-    	String[] ret = {"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
-    		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR",
-    		"Accept Friend Request, AFR", "Accept Friend Request, AFR", "Accept Friend Request, AFR", "View Profile, VP", "View Profile, VP"};
-    	return ret;
-    	// return ActionNames.toArray(sa);
+    	return ActionNames.toArray(sa);
     }
 
     public static boolean[] getReadOnly(boolean[] a){
@@ -239,6 +231,8 @@ public class HorticultureFinalProject{
     	return ret;
     }
     /* Zorn added end */    
+    
+   
    
     public static void printIndexes(String string, char ch,ArrayList k) {
         int index = 0;
@@ -250,7 +244,7 @@ public class HorticultureFinalProject{
         }
     }
    
-    public static void computePartition(String Query)
+    public static void computePartition(String Query,int counter)
     {
         ArrayList storingDotPosition = new ArrayList();
         ArrayList storingQuestionMarkPosition = new ArrayList();
@@ -324,6 +318,8 @@ public class HorticultureFinalProject{
             System.out.println("Query"+QueryNames.get(i).toString());
             TableNames.add(splits1[1].substring(storeIndex,Integer.parseInt(storingTableposition.get(i).toString())-1));
             System.out.println("Table"+TableNames.get(i).toString());
+            ActionNames.add(workloadExtractor[counter].getAction());
+            FrequencyNames.add(workloadExtractor[counter].getFrequency());
            
        
         }
@@ -375,18 +371,138 @@ public class HorticultureFinalProject{
         }
         for(int t=0;t<proceedureExtractor.length;t++)
         {
-        computePartition(proceedureExtractor[t].getQuery());
+           
+        String[] splits = proceedureExtractor[t].getQuery().split(" ");   
+        String[] splits1111 = proceedureExtractor[t].getQuery().split(" ");
+        System.out.println("Arpit 11111111111Splits"+splits[0]);
+        if(splits[0].contentEquals("INSERT"))
+         {
+        String result=null;
+        String tab=null;
+        System.out.println("DEKDKLKDEKEDKKDKCKKDKEKFLLEDLDLDE Insert Query not Working");
+        ArrayList storingBracket1Position = new ArrayList();
+        ArrayList storingBracket2Position = new ArrayList();
+       
+        printIndexes(proceedureExtractor[t].getQuery().toString(),'(',storingBracket1Position);
+        System.out.println("First Barcket Index:-"+storingBracket1Position.get(0).toString());
+       
+        printIndexes(proceedureExtractor[t].getQuery().toString(), ')',storingBracket2Position);
+        System.out.println("Second Barcket Index:-"+storingBracket2Position.get(0).toString());
+        result= proceedureExtractor[t].getQuery().substring(Integer.parseInt(storingBracket1Position.get(0).toString())+1 ,Integer.parseInt(storingBracket2Position.get(0).toString()) );
+        System.out.println("Result between 2 Brackets"+result);
+        System.out.println("Final Atrributes of Insert Statement");
+        String[] splits1 = result.split(",");
+        System.out.println("splits.size: " + splits1.length);
+        for(int i=0;i<splits1.length;i++)
+        {
+            AttributeNames.add(splits1[i]);
+            QueryNames.add("Insert");
+            TableNames.add(splits1111[2]);
+            System.out.println("number"+splits1[i]);
+            ActionNames.add(workloadExtractor[t].getAction());
+            FrequencyNames.add(workloadExtractor[t].getFrequency());
+        }
+       
+        System.out.println("Table Name corresponding to Insert Statement");
+        System.out.println("Query  Name corresponding to Insert Statement");
+       
+       
+         }
+        else if(splits[0].contentEquals("UPDATE"))
+        {
+           
+            ////////////////////////////
+            ArrayList storingDotPosition = new ArrayList();
+            ArrayList storingQuestionMarkPosition = new ArrayList();
+            ArrayList storingspacePosition=new ArrayList();
+            ArrayList storingTableposition=new ArrayList();
+           
+           
+           
+            String[] split1 = proceedureExtractor[t].getQuery().toString().split("where");
+            System.out.println("splits.size: " + split1.length);
+           
+            System.out.println("Line"+split1[0]);
+            System.out.println("Line"+split1[1]);
+           
+            //tring[] splits1 = splits[0].split("from");
+           
+            printIndexes(split1[1], '.',storingDotPosition);
+            printIndexes(split1[1], '?',storingQuestionMarkPosition);
+            //printIndexes(splits[0], ' ',storingspacePosition);
+           
+           
+           
+           
+            System.out.println("****************Dot Position Stored Display Logic*************");
+            for(int i=0;i<storingDotPosition.size();i++)
+            {
+                System.out.println("Values"+storingDotPosition.get(i));
+            }
+            System.out.println("****************Dot Position Stored Display Logic*************");
+           
+           
+            System.out.println("****************Question Mark Position Stored Display Logic*************");
+            for(int i=0;i<storingQuestionMarkPosition.size();i++)
+            {
+                System.out.println("Values"+storingQuestionMarkPosition.get(i));
+            }
+            System.out.println("****************Question Mark Position Stored Display Logic*************");
+               
+            System.out.println("****************Printing values between . and ? Putting Attribute Names and Table Names*************");
+            String result="";
+            String QueryName="";
+            int start=0;
+            int end=0;
+            int storeIndex=0;
+           
+            System.out.println("storingQuestionMarkPosition"+storingQuestionMarkPosition.size());
+           
+            for(int i=0;i<storingQuestionMarkPosition.size();i++)
+            {
+                //start=
+                result=split1[1].substring(Integer.parseInt(storingDotPosition.get(i).toString())+1,Integer.parseInt(storingQuestionMarkPosition.get(i).toString())-1);
+                AttributeNames.add(result);
+                String[] splits11111 = proceedureExtractor[t].getQuery().split(" ");
+                QueryNames.add("UPDATE");
+                TableNames.add(splits11111[1]);
+                //AttributeNames.add("arpit");
+                ActionNames.add(workloadExtractor[t].getAction());
+                FrequencyNames.add(workloadExtractor[t].getFrequency());
+               
+           
+               
+           
+            }
+           
+           
+           
+           
+           
+           
+            ////////////////////////////
+            System.out.println("UPDATE STATEMENT PENDING");
+           
+        }
+        else
+        {
+            computePartition(proceedureExtractor[t].getQuery(),t);
+        }
         }
        
         System.out.println("Final Output");
        
         for(int i=0;i<AttributeNames.size();i++)
         {
+           
             //System.out.println("splits1"+splits1[1]);
             //System.out.println("Result:-"+result);
+            System.out.println("Records"+i);
             System.out.println("Attribute Name Values:-"+AttributeNames.get(i));
             System.out.println("Table Name Values:-"+TableNames.get(i));
             System.out.println("Query Name Values:-"+QueryNames.get(i));
+            System.out.println("Action Name Values:-"+ActionNames.get(i));
+            System.out.println("Frequency Name Values:-"+FrequencyNames.get(i));
             //System.out.println("Table Name Values:-"+TableNames.get(i));
         }
        
