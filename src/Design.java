@@ -11,36 +11,6 @@ public class Design {
 	static String[] table = {};
 	static String[] queryCommand = {};
 
-/*
- 	// static String[] arguments = {"workloadCnt", "actionName", "readOnly", "column", "table"};
-	static int[] workloadCnt = {8,7,100,1,1,
-		9,1,1,1,1,
-		1,1};
-	static String[] actionName = {"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
-		"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend",
-		"ViewProfile", "ViewProfile"};
-	static boolean[] readOnly = {false, false, false, false, false, 
-		false, false, false, false, false,  
-		false, false};
-
-	static String[] column = {"inviteeID","inviteeID","inviterID","inviterID","inviteeID",
-		"inviteeID","inviteeID","inviterID","inviteeID","inviteeID",
-		"userID","userID"};
-
-	static String[] table = {"pendfriendship", "pendfriendship", "pendfriendship", "pendfriendship", "conffriendship",
-		"conffriendship", "conffriendship", "conffriendship", "conffriendship", "conffriendship",
-		"User", "User"};
-
-*/
-	/*
- 	Previous test for ROUTING ATTRIBUTE; 11am, Apr 16 
-	final static int[] workloadCnt = {1,1,1,1,1,1};
-	final static String[] actionName = {"AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend", "AcceptFriend"};
-	final static boolean[] readOnly = {false,false,false,false,false,false};
-	final static String[] column = {"inviteeID","inviterID","inviterID","inviteeID","inviteeID","inviterID"};
-	final static String[] table = {"pendfriendship", "pendfriendship", "conffriendship", "conffriendship", "conffriendship",
-			"conffriendship"};
-*/
 	private LinkedList<Table> partitionList = new LinkedList<Table>();
 	private LinkedList<Table> replicationList = new LinkedList<Table>();
 	private LinkedList<Procedure> routAtrrList = new LinkedList<Procedure>(); 
@@ -62,7 +32,7 @@ public class Design {
 		for(i = 0; i < column.length; i++){
 			ta = null;
 			for(Table t : partitionList){
-				if(!t.name.equals(table[i]))
+				if(!t.name.equalsIgnoreCase(table[i]))
 					continue;
 				ta = t;
 				break;
@@ -207,6 +177,10 @@ class Table implements Comparable<Table>{	// compare tables base on temperature
 		numTxn = p;
 	}
 	
+	public void incNumTxn(int p){
+		numTxn += p;
+	}
+	
 	public void inc(String s, int cnt){
 		s = s.toLowerCase();
 		if(attr.containsKey(s)){
@@ -216,6 +190,7 @@ class Table implements Comparable<Table>{	// compare tables base on temperature
 		else{
 			attr.put(s, cnt);
 		}
+		incNumTxn(cnt);
 	}
 
 	public void computePartAttrSecIndex(){
@@ -266,8 +241,13 @@ class Table implements Comparable<Table>{	// compare tables base on temperature
 		return name;
 	}
 	
-	public int compareTo(Table t){	// compare tables base on temperature
-		double ret = (double) tableSize / (double) numTxn - (double) t.tableSize / (double) t.numTxn;
+	public int compareTo(Table t){	
+		/* compare tables base on temperature
+		 double ret = (double) tableSize / (double) numTxn - (double) t.tableSize / (double) t.numTxn;
+		*/		
+		
+		// compare tables base on numTxn
+		double ret = (double) numTxn - (double) t.numTxn;
 		return (ret > 0)? 1 :
 			(ret < 0)? -1 : 0; 
 	}
