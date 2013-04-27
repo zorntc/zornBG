@@ -48,7 +48,7 @@
 	  <syntax>DELETE from confFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
   </Query>
   <Query>
-	  <syntax>DELETE from confFriendship f where f.inviterID=? and f.inviteeID=?</syntax>
+	  <syntax>DELETE from confFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
   </Query>
   <Query>
 	  <syntax>UPDATE User u Set pendcnt = confcnt - 1 where u.UserID=? or u.UserID=?</syntax>
