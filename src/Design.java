@@ -2,19 +2,33 @@ import java.util.*;
 
 public class Design {
 
-	static int[] workloadCnt = {};
-	
-	static String[] actionName = {};
 	static boolean[] readOnly = {};
-
+	static int[] workloadCnt = {};
+	static String[] actionName = {};
 	static String[] column = {};
-	static String[] table = {};
 	static String[] queryCommand = {};
-
-	private LinkedList<Table> partitionList = new LinkedList<Table>();
-	private LinkedList<Table> replicationList = new LinkedList<Table>();
-	private LinkedList<Procedure> routAtrrList = new LinkedList<Procedure>(); 
-
+	static String[] table = {};
+	
+	LinkedList<Table> partitionList = new LinkedList<Table>();
+	LinkedList<Table> replicationList = new LinkedList<Table>();
+	LinkedList<Procedure> routAtrrList = new LinkedList<Procedure>(); 
+	private int num_tables;
+	
+	public Design(Design d){
+		this.partitionList = new LinkedList<Table>(d.partitionList);
+		this.replicationList = new LinkedList<Table>(d.replicationList);
+		this.routAtrrList = new LinkedList<Procedure>(d.routAtrrList); 
+		this.num_tables = d.num_tables;
+	}
+	
+	public Design(){
+		super();
+	}
+	
+	int getNumTables(){
+		return num_tables;
+	}
+	
 	LinkedList<Table> getPartitionList(){
 		return partitionList;
 	}
@@ -30,6 +44,7 @@ public class Design {
 		int i;
 		Table ta = null;
 		for(i = 0; i < column.length; i++){
+			if(workloadCnt[i] <= 0) continue;
 			ta = null;
 			for(Table t : partitionList){
 				if(!t.name.equalsIgnoreCase(table[i]))
@@ -42,27 +57,50 @@ public class Design {
 				ta = partitionList.getLast();
 			}
 			ta.inc(column[i], workloadCnt[i]);
+			ta.childrenProcedureName.add(actionName[i].toLowerCase());
 			if(!readOnly[i]){
 				ta.replication = false;
 				ta.modifiedCol.add(column[i]);
 			}
 		}
+		
+		// sort Table
+		Table[] partitionArray = {};
+		partitionArray = partitionList.toArray(partitionArray);
+		Arrays.sort(partitionArray);
+		partitionList = new LinkedList<Table>();
+		for(Table t : partitionArray)
+			partitionList.add(t);
 	}
 
 	private void replication(){
-		ListIterator<Table> ite = partitionList.listIterator(0);
-		Table t;
+		Iterator<Table> ite;
+		Table t;		
+		boolean found;
+		
+		for(SchemaExtractor se : HorticultureFinalProject.schemaExtractor){
+			found = false;
+			for(Table ta : partitionList){
+				if(se.getTableName().equalsIgnoreCase(ta.name)){
+					found = true;
+					break;							
+				}
+			}
+			
+			if(!found)
+				replicationList.add(new Table(se.getTableName()));
+		}
+		
+		ite = partitionList.descendingIterator();
 		while(ite.hasNext()){
 			t = ite.next();
-			if(t.replication)
-				replicationList.add(t);
+			if(!t.replication)
+				continue;
+			replicationList.addFirst(t);
+			ite.remove();
 		}
-
-		ite = replicationList.listIterator(0);
-		while(ite.hasNext()){
-			t = ite.next();
-			partitionList.remove(t);
-		}
+		
+		num_tables = partitionList.size() + replicationList.size();
 	}
 
 	private void routingAttr(){
@@ -81,13 +119,40 @@ public class Design {
 				pr = routAtrrList.getLast();
 			}
 			pr.addAttr(column[i], table[i]);
-		}		
+			pr.setFreq(workloadCnt[i]);
+		}
+		
+		// sort routingAttr
+		Procedure[] routingArray = {};
+		routingArray = routAtrrList.toArray(routingArray);
+		Arrays.sort(routingArray);
+		routAtrrList = new LinkedList<Procedure>();
+		for(Procedure t : routingArray)
+			routAtrrList.add(t);
+		
+		// routAtrrList set, set childrenProcedure for every table
+		for(Table ta: partitionList){
+			for(String s: ta.childrenProcedureName){
+				for(i = routAtrrList.size() - 1; i >= 0; i--){
+					if(s.equalsIgnoreCase(routAtrrList.get(i).name))
+						ta.childrenProcedure.add(i);
+				}
+			}
+		}
+		for(Table ta: replicationList){
+			for(String s: ta.childrenProcedureName){
+				for(i = routAtrrList.size() - 1; i >= 0; i--){
+					if(s.equalsIgnoreCase(routAtrrList.get(i).name))
+						ta.childrenProcedure.add(i);
+				}
+			}
+		}
 	}
 
 	private void printlog(){
 		System.out.println("== PARTITION & SECONDARY INDEX ==");
 		for(Table tl: partitionList){
-			System.out.printf("partition %s by %s, second index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
+			System.out.printf("partition %s by %s, secondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
 		}
 		System.out.println("== REPLICATION ==");
 		for(Table tl: replicationList){
@@ -131,12 +196,13 @@ public class Design {
 				break;
 				}
 			}
+			column[i] = column[i].trim(); 
 		}
 		
 		
 		/* DEBUG */
 		for(i=0;i<readOnly.length;i++)			
-	           System.out.println(column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+readOnly[i]);
+	           System.out.println(actionName[i] +'\t'+ column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+readOnly[i]);
 	   
 		
 		if(isArgLengthEqual() != null){
@@ -152,6 +218,8 @@ public class Design {
 		Design best = new Design();
 		best.init();
 		best.printlog();
+		
+		LNS.search(best);
 	}
 }
 

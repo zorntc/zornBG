@@ -5,7 +5,11 @@
         <Attributes>UserID:int,USERNAME:String,PW:String,FNAME:String,LNAME:String,GENDER:String,DOB:String,JDATE:String,LDATE:String,ADDRESS:String,EMAIL:String,TEL:String,confCnt:int,pendCnt:int,rscCnt:int,PM:UserID</Attributes>
   </Table>
   <Table type="contract">
-        <Name>Friends</Name>
+        <Name>confFriendship</Name>
+        <Attributes>userid1:int,userid2:int,status:string</Attributes>
+ </Table>
+  <Table type="contract">
+        <Name>pendFriendship</Name>
         <Attributes>userid1:int,userid2:int,status:string</Attributes>
  </Table>
   <Table type="permanent">

@@ -23,10 +23,10 @@
 		<syntax>DELETE from pendFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
 	</Query>
 	<Query>
-		<syntax>INSERT INTO confFriendship (inviteeID, InviterID) value (?,?)</syntax>
+		<syntax>INSERT INTO CONFFRIENDSHIP (inviteeID, InviterID) value (?,?)</syntax>
 	</Query>
 	<Query>
-		<syntax>INSERT INTO confFriendship (inviterID, inviteeID) value (?,?)</syntax>
+		<syntax>INSERT INTO CONFFRIENDSHIP (inviterID, inviteeID) value (?,?)</syntax>
 	</Query>
 	<Query>
 		<syntax>UPDATE User u Set pendcnt = pendcnt - 1 where u.UserID=?</syntax>
@@ -43,35 +43,35 @@
 		<syntax>UPDATE User u Set pendcnt = pendcnt - 1 where u.UserID=?</syntax>
 	</Query>
 
-<!-- Thaw Friendship -->
-  <Query>
-	  <syntax>DELETE from confFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
-  </Query>
-  <Query>
-	  <syntax>DELETE from confFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
-  </Query>
-  <Query>
-	  <syntax>UPDATE User u Set pendcnt = confcnt - 1 where u.UserID=? or u.UserID=?</syntax>
-  </Query>
+	<!-- Thaw Friendship -->
+	<Query>
+		<syntax>DELETE from CONFFRIENDSHIP f where f.inviteeID=? and f.inviterID=?</syntax>
+	</Query>
+	<Query>
+		<syntax>DELETE from CONFFRIENDSHIP f where f.inviteeID=? and f.inviterID=?</syntax>
+	</Query>
+	<Query>
+		<syntax>UPDATE User u Set pendcnt = confcnt - 1 where u.UserID=? or u.UserID=?</syntax>
+	</Query>
 
-  <!-- View Top-K Resources -->
-  <Query>
-	  <syntax>SELECT * from RESOURCES r where r.walluserid=? ORDER BY r.rid DESC LIMIT 20</syntax>
-  </Query>
+	<!-- View Top-K Resources -->
+	<Query>
+		<syntax>SELECT * from RESOURCES r where r.walluserid=? ORDER BY r.rid DESC LIMIT 20</syntax>
+	</Query>
 
-  <!-- View Comments on a Resource -->
-  <Query>
-	  <syntax>SELECT * from MANIPULATION m where m.rid=?</syntax>
-  </Query>
+	<!-- View Comments on a Resource -->
+	<Query>
+		<syntax>SELECT * from MANIPULATION m where m.rid=?</syntax>
+	</Query>
 
-  <!-- Post Comment on a Resource -->
-  <Query>
-	  <syntax>INSERT INTO manipulation (mid,creatorid,rid,modifierid,timestamp,type,content) VALUES (?, ?, ?, ?, ?, ?, ?)</syntax>
-  </Query>
+	<!-- Post Comment on a Resource -->
+	<Query>
+		<syntax>INSERT INTO manipulation (mid,creatorid,rid,modifierid,timestamp,type,content) VALUES (?, ?, ?, ?, ?, ?, ?)</syntax>
+	</Query>
 
-  <!-- Delete Comment from a Resource -->
-  <Query>
-	  <syntax>DELETE from MANIPULATION m where m.mid=? AND m.rid=?</syntax>
-  </Query>
+	<!-- Delete Comment from a Resource -->
+	<Query>
+		<syntax>DELETE from MANIPULATION m where m.mid=? AND m.rid=?</syntax>
+	</Query>
 
 </Queries>

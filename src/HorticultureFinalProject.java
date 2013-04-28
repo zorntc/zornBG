@@ -11,7 +11,7 @@ import org.xml.sax.SAXParseException;
 
 public class HorticultureFinalProject{
    
-    static SchemaExtractor[] schemaExtractor= new SchemaExtractor[4];
+    static SchemaExtractor[] schemaExtractor= new SchemaExtractor[5];
     static ProceedureExtractor[] proceedureExtractor= new ProceedureExtractor[19];
     static WorkloadExtractor[] workloadExtractor= new WorkloadExtractor[19];
    
