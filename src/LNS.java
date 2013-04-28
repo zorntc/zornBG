@@ -17,7 +17,6 @@ public class LNS {
 	// current Design
 	private static Design current;
 	private static TreeSet<Integer> relaxedProcedureIndex = new TreeSet<Integer>();
-	private static LinkedList<Integer> currentRoutingUnknown;
 	
 	// principles Design
 	static Design principle;	// contains parsing info;
@@ -89,8 +88,6 @@ public class LNS {
 		for(Integer ind: relaxedProcedureIndex)
 			current.routAtrrList.get(ind).clearRouteAtrr();
 		
-		currentRoutingUnknown = new LinkedList<Integer>(relaxedProcedureIndex);
-		
 		return;
 	}
 	
@@ -102,26 +99,30 @@ public class LNS {
 		return true;
 	}
 	
-	public static boolean searchProcedure(LinkedList<Integer> routingUnknown){
+	public static boolean searchProcedure(TreeSet<Integer> routingUnknown){
 		if(noImproveRnd++ > LOCAL_SEARCH_ROUND)
 			return false;
 		
 		if(routingUnknown.size() <= 0)
 			return compareCost(current);
 		
-		int i, index;
-		for(i = 0; i < routingUnknown.size(); i++){
-			index = routingUnknown.remove(i);
-			searchProcedure(routingUnknown);
-			routingUnknown.add(i, index);
+		int index = routingUnknown.pollFirst();
+		boolean ret = false;
+		Procedure pr = current.routAtrrList.get(index);
+		for(String s : pr.attrCdt){
+			pr.routAtrr = s;
+			if(estimateCost(current) >= bestCost)
+				continue;
+			if(searchProcedure(routingUnknown))
+				ret = true;
 		}
-		return false;
+		return ret;
 	}
 	
 	public static boolean fixRelaxTable(int tableIndex){	
 		boolean ret = false;
 		if(tableIndex >= partitionTableSize)
-			return searchProcedure(currentRoutingUnknown);
+			return searchProcedure(relaxedProcedureIndex);
 		
 		// FIXME possible to fail when no attribute Candidates
 		if(!flipBase[tableIndex])				
