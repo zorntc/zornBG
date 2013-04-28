@@ -2,22 +2,25 @@ import java.util.*;
 
 public class LNS {
 
+	// environmental parameters
 	static final int LOCAL_SEARCH_ROUND = 1000;
 	static final int noImproveRndMax = 100;		// max round number allowed for local procedure search without improving 
 	static final double relaxation_factor_min = 0.25;
 	static final double relaxation_factor_max = 0.5;
 	
-	
-
+	// currently best design
+	private static Design best;			
 	private static double bestCost;
-	private static Design best;			// currently best design
 	
+	// current Design
 	private static Design current;
 	private static TreeSet<Integer> relaxedProcedureIndex = new TreeSet<Integer>();
 	
+	// principles Design
 	static Design principle;	// contains parsing info;
 	static int num_tables;
 	static int partitionTableSize;
+	static String[] principleTableName;
 	
 	static int relaxRound = 0;
 	static int relaxTableQuantity = 1;
@@ -65,31 +68,35 @@ public class LNS {
 		relaxedProcedureIndex = new TreeSet<Integer>();  
 		current = new Design();
 		current.routAtrrList = new LinkedList<Procedure>(principle.routAtrrList);
-		
+		LinkedList<Table> dupPart = new LinkedList<Table>(principle.partitionList); 
+		LinkedList<Table> dupRep = new LinkedList<Table>(principle.replicationList); 
 		Table tmp;
 		int i;
+
 		for(i = 0; i < partitionTableSize; i++){
 			if(flip[index][i]){
-				tmp = principle.partitionList.get(i);
+				tmp = dupPart.get(i);
+				tmp.relax();
 				current.replicationList.add(tmp);
 				addRelaxProc(tmp);
 			}
 			else
-				current.partitionList.add(principle.partitionList.get(i));
+				current.partitionList.add(dupPart.get(i));
 		}
 		for(i = partitionTableSize; i < num_tables; i++){
 			if(flip[index][i]){
-				tmp = principle.replicationList.get(i - partitionTableSize);
+				tmp = dupRep.get(i - partitionTableSize);
+				tmp.relax();
 				current.partitionList.add(tmp);
 				addRelaxProc(tmp);
 			}
 			else
-				current.replicationList.add(principle.replicationList.get(i - partitionTableSize));
+				current.replicationList.add(dupRep.get(i - partitionTableSize));
 		}
 		
 		// clearRouteAtrr()
-		for(i = current.routAtrrList.size() - 1; i >= 0; i--)
-			current.routAtrrList.get(i).clearRouteAtrr();
+		for(Integer ind: relaxedProcedureIndex)
+			current.routAtrrList.get(ind).clearRouteAtrr();
 		
 		return;
 	}
@@ -123,6 +130,13 @@ public class LNS {
 		principle = new Design(d);
 		num_tables = d.getNumTables();
 		partitionTableSize = d.partitionList.size();
+		principleTableName = new String[num_tables];
+		
+		int i;
+		for(i = 0; i < partitionTableSize; i++)
+			principleTableName[i] = d.partitionList.get(i).name;
+		for(i = partitionTableSize; i < num_tables; i++)
+			principleTableName[i] = d.replicationList.get(i - partitionTableSize).name;
 	}
 	
 	static void setBest(Design de, double dou){

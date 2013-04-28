@@ -31,6 +31,10 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 		numTxn += p;
 	}
 	
+	public void relax(){
+		replication = (replication)? false : true;
+	}
+	
 	public void inc(String s, int cnt){
 		if(cnt <= 0) return;
 		s = s.toLowerCase();
