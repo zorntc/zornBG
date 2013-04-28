@@ -11,12 +11,14 @@ public class Design {
 	
 	LinkedList<Table> partitionList = new LinkedList<Table>();
 	LinkedList<Table> replicationList = new LinkedList<Table>();
+	LinkedList<Table> tableList = new LinkedList<Table>();
 	LinkedList<Procedure> routAtrrList = new LinkedList<Procedure>(); 
 	private int num_tables;
 	
 	public Design(Design d){
 		this.partitionList = new LinkedList<Table>(d.partitionList);
 		this.replicationList = new LinkedList<Table>(d.replicationList);
+		this.tableList = new LinkedList<Table>(d.tableList);
 		this.routAtrrList = new LinkedList<Procedure>(d.routAtrrList); 
 		this.num_tables = d.num_tables;
 	}
@@ -101,6 +103,10 @@ public class Design {
 		}
 		
 		num_tables = partitionList.size() + replicationList.size();
+		for(Table ta: partitionList)
+			tableList.add(ta);
+		for(Table ta: replicationList)
+			tableList.add(ta);
 	}
 
 	private void routingAttr(){
@@ -149,6 +155,11 @@ public class Design {
 		}
 	}
 
+	private void printlog(String s){
+		System.out.println("  = = = " + s + " = = =");
+		printlog();
+	}
+	
 	private void printlog(){
 		System.out.println("== PARTITION & SECONDARY INDEX ==");
 		for(Table tl: partitionList){
@@ -217,9 +228,9 @@ public class Design {
 		
 		Design best = new Design();
 		best.init();
-		best.printlog();
+		best.printlog("Initial Design");
 		
-		LNS.search(best);
+		LNS.relaxThenSearch(best).printlog("Final Design");
 	}
 }
 

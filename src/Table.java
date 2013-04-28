@@ -12,11 +12,23 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 	LinkedList<Integer> attrCdtVal = new LinkedList<Integer>();
 	TreeSet<Integer> childrenProcedure = new TreeSet<Integer>();
 	TreeSet<String> childrenProcedureName = new TreeSet<String>();
-
 	HashSet<String> modifiedCol = new HashSet<String>();		// what attr is not read-only 
 
 	public Table(String s){
 		name = s;
+	}
+	
+	public Table(Table ta){
+		this(ta.name);
+		this.partitionAttr = ta.partitionAttr;
+		this.secIndex = ta.secIndex;
+		this.replication = ta.replication;
+		this.numTxn = ta.numTxn;				// for temperature. Ask Arpit to set this value in schemaExtractor
+		this.attrCdt = ta.attrCdt;		// attribute candidate 
+		this.attrCdtVal = ta.attrCdtVal;
+		this.childrenProcedure = ta.childrenProcedure;
+		this.childrenProcedureName = ta.childrenProcedureName;
+		this.modifiedCol = ta.modifiedCol;		// what attr is not read-only
 	}
 
 	public void setTableSize(double s){
@@ -29,10 +41,6 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 	
 	public void incNumTxn(int p){
 		numTxn += p;
-	}
-	
-	public void relax(){
-		replication = (replication)? false : true;
 	}
 	
 	public void inc(String s, int cnt){
@@ -107,6 +115,10 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 		return secIndex;
 	}
 
+	public void fixRelaxPartitionAttr(String attrC) {
+		partitionAttr = attrC;
+	}
+	
 	public boolean equals(String s){
 		return (s.equalsIgnoreCase(name));
 	}
@@ -126,4 +138,5 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 		return (ret > 0)? 1 :
 			(ret < 0)? -1 : 0; 
 	}
+
 }

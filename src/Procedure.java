@@ -82,8 +82,12 @@ class Procedure implements Comparable<Procedure>{
 			}
 		}
 
-		if(routAtrr == null)
-			routAtrr = attrCdt.getFirst() + " [Not a valid routing parameter]";
+		if(routAtrr == null){
+			if(attrCdt.size() != 0)
+				routAtrr = attrCdt.getFirst() + " [Not a valid routing parameter]";
+			else
+				routAtrr = "No attribute Candidates!";
+		}
 		attr = null;	// free attr TreeMap
 		return routAtrr;
 	}
@@ -93,5 +97,9 @@ class Procedure implements Comparable<Procedure>{
 		int ret = p.frequency - frequency;
 		return (ret > 0)? 1 :
 			(ret < 0)? -1 : 0; 
+	}
+	
+	public String toString(){
+		return name;
 	}
 }
