@@ -9,6 +9,7 @@ public class Design {
 	static String[] queryCommand = {};
 	static String[] table = {};
 	
+	// Don't use these lists directly. Use get() below to prevent modifying list itself. 
 	LinkedList<Table> partitionList = new LinkedList<Table>();
 	LinkedList<Table> replicationList = new LinkedList<Table>();
 	LinkedList<Table> tableList = new LinkedList<Table>();
@@ -33,8 +34,17 @@ public class Design {
 		return num_tables;
 	}
 	
+	// return lists
 	LinkedList<Table> getPartitionList(){
 		return partitionList;
+	}
+
+	LinkedList<Table> getReplicationList(){
+		return replicationList;
+	}
+	
+	LinkedList<Procedure> getRoutAtrrList(){
+		return routAtrrList;
 	}
 
 	public static String isArgLengthEqual(){
@@ -235,11 +245,10 @@ public class Design {
 			column[i] = column[i].trim(); 
 		}
 		
-		
-		/* DEBUG */
+		/* DEBUG
 		for(i=0;i<readOnly.length;i++)			
 	           System.out.println(actionName[i] +'\t'+ column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+readOnly[i]);
-	   
+	    */
 		
 		if(isArgLengthEqual() != null){
 			System.err.println("arrays length is inconsistent: " + isArgLengthEqual());

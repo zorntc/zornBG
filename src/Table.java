@@ -1,12 +1,14 @@
 import java.util.*;
 
 class Table implements Comparable<Table>{	// compare tables base on temperature (numTxn)
+	
 	String name = null;
 	private String partitionAttr = null;
 	private LinkedList<String> secIndex = new LinkedList<String>();
 	boolean replication = true;
-//	private double tableSize;		// for temperature
+	
 	private int numTxn;				// for temperature. Ask Arpit to set this value in schemaExtractor FIXME
+	
 	TreeMap<String, Integer> attr = new TreeMap<String, Integer>();		// counting attr frequency
 	LinkedList<String> attrCdt = new LinkedList<String>();		// attribute candidate 
 	LinkedList<Integer> attrCdtVal = new LinkedList<Integer>();
@@ -104,16 +106,26 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 			secIndex.add("NIL");
 	}
 
+	// Return partition attribute and secondary index.
 	public String getPartAttr(){
 		if(partitionAttr == null)
 			computePartAttrSecIndex();
-		return partitionAttr;
+		if(!replication)
+			return partitionAttr;
+		return "No partition attribute. Table replicated.";
 	}
 
+	// Return partition attribute and secondary index.
 	public LinkedList<String> getSecIndex(){
 		if(secIndex.size() == 0)
 			computePartAttrSecIndex();
-		return secIndex;
+		
+		if(!replication)
+			return secIndex;
+		
+		LinkedList<String> ret = new LinkedList<String>();
+		ret.add("No secondary index. Table replicated.");
+		return ret;
 	}
 
 	public void fixRelaxPartitionAttr(String attrC) {

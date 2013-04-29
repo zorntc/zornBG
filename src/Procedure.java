@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 class Procedure implements Comparable<Procedure>{
 	String name; 
-	String routAtrr;
+	private String routAtrr;
 	TreeMap<String, Integer> attr = new TreeMap<String, Integer>();
 	LinkedList<String> attrCdt = new LinkedList<String>();		// attribute candidate 
 	LinkedList<Integer> attrCdtVal = new LinkedList<Integer>();
@@ -99,6 +99,10 @@ class Procedure implements Comparable<Procedure>{
 		}
 		attr = null;	// free attr TreeMap
 		return routAtrr;
+	}
+
+	public void setRoutAtrr(String s) {
+		routAtrr = s;
 	}
 	
 	public int compareTo(Procedure p){	

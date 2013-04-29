@@ -3,7 +3,7 @@ import java.util.*;
 public class LNS {
 
 	// environmental parameters
-	static final int LOCAL_SEARCH_ROUND = 1000;
+	static final int LOCAL_SEARCH_ROUND = 10000000;
 	static final int noImproveRndMax = 100;		// max round number allowed for local procedure search without improving 
 	static final double relaxation_factor_min = 0.25;
 	static final double relaxation_factor_max = 0.5;
@@ -98,7 +98,7 @@ public class LNS {
 		boolean ret = false;
 		Procedure pr = current.routAtrrList.get(index);
 		for(String s : pr.attrCdt){
-			pr.routAtrr = s;
+			pr.setRoutAtrr(s);
 			if(estimateCost(current) >= bestCost)
 				continue;
 			if(searchProcedure(stepRoutingUnknown))
@@ -128,20 +128,26 @@ public class LNS {
 		
 		int i;
 		// replicate originally partitioned table
+		tmp.replication = true;
 		current.tableList.remove(tableIndex);
 		current.partitionList.remove(tableIndex);
 		current.replicationList.addFirst(tmp);
+		
 		for(i = tableIndex; i < localPartSize - 1; i++)
 			flipBase[i] = flipBase[i+1];
+		
 		if(fixRelaxTable(tableIndex , localPartSize - 1))
 			ret = true;
+		
 		for(i = tableIndex; i < localPartSize - 1; i++)
 			flipBase[i+1] = flipBase[i];
 		flipBase[tableIndex] = true;
+		
 		current.replicationList.removeFirst();
 		current.partitionList.add(tableIndex, tmp);
 		current.tableList.add(tableIndex, tmp);
-
+		tmp.replication = false;
+		
 		return ret;
 	}
 	
@@ -165,7 +171,7 @@ public class LNS {
 		for(i = 0; i < combination - 1; i++){
 			setRelaxTable(i);
 			
-			/*
+			/* DEBUG
 			noImproveRnd = 0;
 			while(noImproveRnd < noImproveRndMax){
 				if(search(i))
@@ -213,7 +219,7 @@ public class LNS {
 	static double cost = 0;
 	public static double estimateCost(Design d){
 		if(cost >= 100)
-			cost = -1000;
+			cost = -100;
 		return cost++;
 	}
 }
