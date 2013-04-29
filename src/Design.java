@@ -48,6 +48,7 @@ public class Design {
 		int i;
 		Table ta = null;
 		for(i = 0; i < column.length; i++){
+			column[i] = column[i].toLowerCase();
 			if(workloadCnt[i] <= 0) continue;
 			ta = null;
 			for(Table t : partitionList){
@@ -65,7 +66,6 @@ public class Design {
 			if(!readOnly[i]){
 				ta.replication = false;
 				ta.modifiedCol.add(column[i]);
-			//	ta.secondCdt.remove(column[i]);	TODO
 			}
 		}
 		
@@ -74,8 +74,30 @@ public class Design {
 		partitionArray = partitionList.toArray(partitionArray);
 		Arrays.sort(partitionArray);
 		partitionList = new LinkedList<Table>();
-		for(Table t : partitionArray)
+		
+		Iterator<String> ite;
+		for(Table t : partitionArray){
+			
+			// get secondary index candidates
+			for(i = 0; i < HorticultureFinalProject.schemaExtractor.length; i++){
+				if(t.name.equalsIgnoreCase(HorticultureFinalProject.schemaExtractor[i].tableName))
+					break;
+			}
+			
+			if(i >= HorticultureFinalProject.schemaExtractor.length)
+				System.err.println("table name not found");
+			
+			t.secondCdt.addAll(HorticultureFinalProject.schemaExtractor[i].getEveryAttribute());
+			// TODO enable this when Arpit finished
+			// t.setNumTxn(HorticultureFinalProject.schemaExtractor[i].getTxnCnt());
+			ite = t.secondCdt.iterator();
+			while(ite.hasNext()){
+				if(t.modifiedCol.contains(ite.next().toLowerCase()))
+					ite.remove();
+			}
+			
 			partitionList.add(t);
+		}
 	}
 
 	private void replication(){

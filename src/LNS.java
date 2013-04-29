@@ -112,7 +112,6 @@ public class LNS {
 		if(tableIndex >= localPartSize)
 			return searchProcedure(relaxedProcedureIndex);
 		
-		// FIXME possible to fail when no attribute Candidates
 		if(!flipBase[tableIndex])				
 			return fixRelaxTable(tableIndex + 1, localPartSize);
 		if(current.tableList.get(tableIndex).replication
@@ -210,8 +209,11 @@ public class LNS {
 		return true;
 	}
 	
+	// need Arpit to fill this FIXME
 	static double cost = 0;
 	public static double estimateCost(Design d){
-		return cost--;
+		if(cost >= 100)
+			cost = -1000;
+		return cost++;
 	}
 }

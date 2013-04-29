@@ -1,3 +1,5 @@
+import java.util.LinkedList;
+
 /**
  * @author Arpit
  */
@@ -19,4 +21,16 @@ public class SchemaExtractor
 		this.attributeNames = attributeNames;
 	}
 	
+	/* Zorn added start */
+	private LinkedList<String> everyAttribute = new LinkedList<String>(); // need 
+	public LinkedList<String> getEveryAttribute() {
+		everyAttribute.add("userid");
+		return everyAttribute;
+	}
+	
+	private int txnCnt = 0;
+	public int getTxnCnt(){
+		return txnCnt;
+	}
+	/* Zorn added end */
 }

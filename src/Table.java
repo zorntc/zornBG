@@ -13,7 +13,8 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 	TreeSet<Integer> childrenProcedure = new TreeSet<Integer>();
 	TreeSet<String> childrenProcedureName = new TreeSet<String>();
 	HashSet<String> modifiedCol = new HashSet<String>();		// what attr is not read-only 
-
+	LinkedList<String> secondCdt = new LinkedList<String>();
+	
 	public Table(String s){
 		name = s;
 	}
@@ -53,7 +54,7 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 		else{
 			attr.put(s, cnt);
 		}
-		incNumTxn(cnt);
+		incNumTxn(cnt);		// TODO cancel this when Arpit finished
 	}
 
 	public void computePartAttrSecIndex(){
@@ -116,6 +117,12 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 	}
 
 	public void fixRelaxPartitionAttr(String attrC) {
+		secIndex.clear();
+		secIndex.addAll(secondCdt);
+		secIndex.remove(attrC);
+		if(secIndex.size() == 0)
+			secIndex.add("NIL");
+	
 		partitionAttr = attrC;
 	}
 	
