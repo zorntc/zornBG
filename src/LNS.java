@@ -218,8 +218,8 @@ public class LNS {
 	// need Arpit to fill this FIXME
 	static double cost = 0;
 	public static double estimateCost(Design d){
-		if(cost >= 100)
-			cost = -100;
+		if(cost >= -100)
+			cost = -10;
 		return cost++;
 	}
 }

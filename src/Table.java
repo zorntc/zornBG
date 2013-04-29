@@ -24,7 +24,7 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 	public Table(Table ta){
 		this(ta.name);
 		this.partitionAttr = ta.partitionAttr;
-		this.secIndex = ta.secIndex;
+		this.secIndex = new LinkedList<String>(ta.secIndex);
 		this.replication = ta.replication;
 		this.numTxn = ta.numTxn;				// for temperature. Ask Arpit to set this value in schemaExtractor
 		this.attrCdt = ta.attrCdt;		// attribute candidate 
