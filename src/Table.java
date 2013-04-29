@@ -6,7 +6,7 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 	private LinkedList<String> secIndex = new LinkedList<String>();
 	boolean replication = true;
 //	private double tableSize;		// for temperature
-	private int numTxn;				// for temperature. Ask Arpit to set this value in schemaExtractor
+	private int numTxn;				// for temperature. Ask Arpit to set this value in schemaExtractor FIXME
 	TreeMap<String, Integer> attr = new TreeMap<String, Integer>();		// counting attr frequency
 	LinkedList<String> attrCdt = new LinkedList<String>();		// attribute candidate 
 	LinkedList<Integer> attrCdtVal = new LinkedList<Integer>();

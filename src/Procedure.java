@@ -20,6 +20,16 @@ class Procedure implements Comparable<Procedure>{
 		name = sname;
 		root = d;
 	}
+	
+	public Procedure(Procedure p){
+		name = p.name;
+		routAtrr = p.routAtrr;
+		attr = p.attr;
+		attrCdt = p.attrCdt;		// attribute candidate 
+		attrCdtVal = p.attrCdtVal;
+		root = p.root;
+		frequency = p.frequency;
+	}
 /*	Disabled
 	public Procedure(String sname, String ra, String rt){
 		name = sname;
@@ -83,7 +93,7 @@ class Procedure implements Comparable<Procedure>{
 
 		if(routAtrr == null){
 			if(attrCdt.size() != 0)
-				routAtrr = attrCdt.getFirst() + " [Not a valid routing parameter]";
+				routAtrr = attrCdt.getFirst();
 			else
 				routAtrr = "No attribute Candidates!";
 		}

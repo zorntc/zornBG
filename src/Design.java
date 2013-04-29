@@ -19,7 +19,9 @@ public class Design {
 		this.partitionList = new LinkedList<Table>(d.partitionList);
 		this.replicationList = new LinkedList<Table>(d.replicationList);
 		this.tableList = new LinkedList<Table>(d.tableList);
-		this.routAtrrList = new LinkedList<Procedure>(d.routAtrrList); 
+		for(Procedure p : d.routAtrrList){
+			this.routAtrrList.add(new Procedure(p));
+		}
 		this.num_tables = d.num_tables;
 	}
 	
@@ -63,6 +65,7 @@ public class Design {
 			if(!readOnly[i]){
 				ta.replication = false;
 				ta.modifiedCol.add(column[i]);
+			//	ta.secondCdt.remove(column[i]);	TODO
 			}
 		}
 		
@@ -161,17 +164,17 @@ public class Design {
 	}
 	
 	private void printlog(){
-		System.out.println("== PARTITION & SECONDARY INDEX ==");
+		System.out.println(" == PARTITION & SECONDARY INDEX ==");
 		for(Table tl: partitionList){
-			System.out.printf("partition %s by %s, secondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
+			System.out.printf("%s\tby %s,\tsecondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
 		}
-		System.out.println("== REPLICATION ==");
+		System.out.println(" == REPLICATION ==");
 		for(Table tl: replicationList){
-			System.out.printf("replicate %s\n", tl);
+			System.out.printf("%s\n", tl);
 		}
-		System.out.println("== ROUTING ATTRIBUTE ==");
+		System.out.println(" == ROUTING ATTRIBUTE ==");
 		for(Procedure p: routAtrrList){
-			System.out.printf("Routing attribute of %s = %s\n", p.name, p.getRoutAtrr());
+			System.out.printf("%s:\t%s\n", p.name, p.getRoutAtrr());
 		}
 	}
 	
@@ -230,7 +233,8 @@ public class Design {
 		best.init();
 		best.printlog("Initial Design");
 		
-		LNS.relaxThenSearch(best).printlog("Final Design");
+		best = LNS.relaxThenSearch(best);
+		best.printlog("Final Design");
 	}
 }
 
