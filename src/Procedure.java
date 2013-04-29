@@ -6,7 +6,6 @@ import java.util.TreeMap;
 class Procedure implements Comparable<Procedure>{
 	String name; 
 	String routAtrr;
-//	String routTable;		// TODO Disabled, not set yet. null all the time right now
 	TreeMap<String, Integer> attr = new TreeMap<String, Integer>();
 	LinkedList<String> attrCdt = new LinkedList<String>();		// attribute candidate 
 	LinkedList<Integer> attrCdtVal = new LinkedList<Integer>();
