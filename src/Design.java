@@ -156,7 +156,7 @@ public class Design {
 	}
 
 	private void printlog(String s){
-		System.out.println("  = = = " + s + " = = =");
+		System.out.println("\n  = = = " + s + " = = =\n");
 		printlog();
 	}
 	

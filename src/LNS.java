@@ -24,21 +24,16 @@ public class LNS {
 	static int partitionTableSize;
 	
 	static int relaxRound = 0;
-	static int relaxTableQuantity = 1;
 	static boolean[][] flip;	// corresponding to principle table's name
 	static boolean[] flipBase;
 	static int combination = 1;
 
-	public static boolean relaxTable(){
+	static int inscribeOrder = 0;
+	static void inscribe(){
 		int i;
 		for(i = 0; i < partitionTableSize; i++)
-			combination *= 2;
-		
-		flipBase = new boolean[num_tables];
-		flip = new boolean[combination - 1][partitionTableSize];
-		for(i = 1; i <= partitionTableSize; i++)
-			forward(i, 0);
-		return true;
+			flip[inscribeOrder][i] = flipBase[i];
+		inscribeOrder++;
 	}
 	
 	static void forward(int digit, int start){
@@ -53,12 +48,16 @@ public class LNS {
 		forward(digit, start + 1);
 	}
 	
-	static int inscribeOrder = 0;
-	static void inscribe(){
+	public static boolean relaxTable(){
 		int i;
 		for(i = 0; i < partitionTableSize; i++)
-			flip[inscribeOrder][i] = flipBase[i];
-		inscribeOrder++;
+			combination *= 2;
+		
+		flipBase = new boolean[num_tables];
+		flip = new boolean[combination - 1][partitionTableSize];
+		for(i = 1; i <= partitionTableSize; i++)
+			forward(i, 0);
+		return true;
 	}
 	
 	static boolean addRelaxProc(Table t){
@@ -68,7 +67,6 @@ public class LNS {
 	public static void setRelaxTable(int index){
 		relaxedProcedureIndex = new TreeSet<Integer>();  
 		current = new Design(principle);
-		current.partitionList.clear();
 		
 		LinkedList<Table> dupPart = new LinkedList<Table>(principle.partitionList); 
 		Table tmp;
@@ -77,11 +75,8 @@ public class LNS {
 		for(i = 0; i < partitionTableSize; i++){
 			tmp = dupPart.get(i);
 			if(flip[index][i]){
-				current.replicationList.add(tmp);
 				addRelaxProc(tmp);
 			}
-			else
-				current.partitionList.add(tmp);
 		}
 
 		// clearRouteAtrr()
@@ -91,14 +86,6 @@ public class LNS {
 		return;
 	}
 	
-	static boolean compareCost(Design de){
-		double newCost = estimateCost(de);
-		if(newCost >= bestCost)
-			return false;
-		setBest(de, newCost);
-		return true;
-	}
-	
 	public static boolean searchProcedure(TreeSet<Integer> routingUnknown){
 		if(noImproveRnd++ > LOCAL_SEARCH_ROUND)
 			return false;
@@ -106,27 +93,28 @@ public class LNS {
 		if(routingUnknown.size() <= 0)
 			return compareCost(current);
 		
-		int index = routingUnknown.pollFirst();
+		TreeSet<Integer> stepRoutingUnknown = new TreeSet<Integer>(routingUnknown);
+		int index = stepRoutingUnknown.pollFirst();
 		boolean ret = false;
 		Procedure pr = current.routAtrrList.get(index);
 		for(String s : pr.attrCdt){
 			pr.routAtrr = s;
 			if(estimateCost(current) >= bestCost)
 				continue;
-			if(searchProcedure(routingUnknown))
+			if(searchProcedure(stepRoutingUnknown))
 				ret = true;
 		}
 		return ret;
 	}
 	
-	public static boolean fixRelaxTable(int tableIndex){	
+	public static boolean fixRelaxTable(int tableIndex, int localPartSize){	
 		boolean ret = false;
-		if(tableIndex >= partitionTableSize)
+		if(tableIndex >= localPartSize)
 			return searchProcedure(relaxedProcedureIndex);
 		
 		// FIXME possible to fail when no attribute Candidates
 		if(!flipBase[tableIndex])				
-			return fixRelaxTable(tableIndex + 1);
+			return fixRelaxTable(tableIndex + 1, localPartSize);
 		if(current.tableList.get(tableIndex).replication
 				|| (current.tableList.get(tableIndex).attrCdt.size() == 0))
 			System.err.println("Something Wrong with fixRelaxTable()");
@@ -135,16 +123,26 @@ public class LNS {
 		// use all attrCdt to set routing attribute
 		for(String attrC: tmp.attrCdt){	
 			current.tableList.get(tableIndex).fixRelaxPartitionAttr(attrC);
-			if(fixRelaxTable(tableIndex + 1))
+			if(fixRelaxTable(tableIndex + 1, localPartSize))
 				ret = true;
 		}
 		
+		int i;
 		// replicate originally partitioned table
-		current.partitionList.remove(tmp);
+		current.tableList.remove(tableIndex);
+		current.partitionList.remove(tableIndex);
 		current.replicationList.addFirst(tmp);
-		if(fixRelaxTable(tableIndex + 1))
+		for(i = tableIndex; i < localPartSize - 1; i++)
+			flipBase[i] = flipBase[i+1];
+		if(fixRelaxTable(tableIndex , localPartSize - 1))
 			ret = true;
-		
+		for(i = tableIndex; i < localPartSize - 1; i++)
+			flipBase[i+1] = flipBase[i];
+		flipBase[tableIndex] = true;
+		current.replicationList.removeFirst();
+		current.partitionList.add(tableIndex, tmp);
+		current.tableList.add(tableIndex, tmp);
+
 		return ret;
 	}
 	
@@ -155,7 +153,7 @@ public class LNS {
 		for(i = 0; i < partitionTableSize; i++)
 			flipBase[i] = flip[round][i];
 		
-		return fixRelaxTable(0);
+		return fixRelaxTable(0, partitionTableSize);
 	}
 	
 	public static Design relaxThenSearch(Design d) {
@@ -192,10 +190,28 @@ public class LNS {
 		best = new Design(de);
 		bestCost = dou;
 		noImproveRnd = 0;
+		
+		/* DEBUG
+		int i, j;
+		for(i = best.replicationList.size() - 1; i >= 0; i--){
+			for(j = i - 1; j >= 0; j--){
+				if(best.replicationList.get(i).name.equalsIgnoreCase(best.replicationList.get(j).name))
+					bestCost = dou;
+			}
+		}
+		*/
+	}
+	
+	static boolean compareCost(Design de){
+		double newCost = estimateCost(de);
+		if(newCost >= bestCost)
+			return false;
+		setBest(de, newCost);
+		return true;
 	}
 	
 	static double cost = 0;
 	public static double estimateCost(Design d){
-		return cost++;
+		return cost--;
 	}
 }
