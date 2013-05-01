@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Tables>
-  <Table type="permanent">
-        <Name>User</Name>
-        <Attributes>UserID:int,USERNAME:String,PW:String,FNAME:String,LNAME:String,GENDER:String,DOB:String,JDATE:String,LDATE:String,ADDRESS:String,EMAIL:String,TEL:String,confCnt:int,pendCnt:int,rscCnt:int,PM:UserID</Attributes>
-  </Table>
-  <Table type="contract">
-        <Name>confFriendship</Name>
-        <Attributes>userid1:int,userid2:int,status:string</Attributes>
- </Table>
-  <Table type="contract">
-        <Name>pendFriendship</Name>
-        <Attributes>userid1:int,userid2:int,status:string</Attributes>
- </Table>
-  <Table type="permanent">
-       <Name>Resources</Name>
-        <Attributes>rid:int,creatorid:int,walluserid:int,body:String,doc:String</Attributes>
- </Table>
-  <Table type="permanent">
-       <Name>Manipulation</Name>
-        <Attributes>mid:int,modifierid:int,rid:int,resourcecreatorid:int,timestamp:String,type:String,content:String</Attributes>
- </Table>
+	<Table>
+		<Name>User</Name>
+		<Attributes>userid(1),USERNAME(2),PW(3),FNAME(4),LNAME(5),GENDER(6),DOB(7),JDATE(8),LDATE(9),ADDRESS(9),EMAIL(10),TEL(11),confCnt(12),pendCnt(13),rscCnt(14)</Attributes>
+	</Table>
+	<Table>
+		<Name>confFriendship</Name>
+		<Attributes>inviterid(1),inviteeid(2),status(3)</Attributes>
+	</Table>
+	<Table>
+		<Name>pendFriendship</Name>
+		<Attributes>inviterid(1),inviteeid(2),status(3)</Attributes>
+	</Table>
+	<Table>
+		<Name>Resources</Name>
+		<Attributes>rid(1),creatorid(2),walluserid(3),body(4),doc(5)</Attributes>
+	</Table>
+	<Table>
+		<Name>Manipulation</Name>
+		<Attributes>mid(1),modifierid(2),rid(3),resourcecreatorid(4),timestamp(5),type(6),content(11)</Attributes>
+	</Table>
 </Tables>
+

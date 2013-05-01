@@ -25,7 +25,7 @@ public class SchemaExtractor
 	/* Zorn added start */
 	private LinkedList<String> everyAttribute = new LinkedList<String>(); // need 
 	public LinkedList<String> getEveryAttribute() {
-		everyAttribute.add("userid");	// fake one for all the tables currently. FIXME
+//		everyAttribute.add("userid");	// fake one for all the tables currently. FIXME
 		return everyAttribute;
 	}
 	
