@@ -6,11 +6,11 @@
 	</Table>
 	<Table>
 		<Name>confFriendship</Name>
-		<Attributes>inviterid(1),inviteeid(2),status(3)</Attributes>
+		<Attributes>inviterid(1),inviteeid(2)</Attributes>
 	</Table>
 	<Table>
 		<Name>pendFriendship</Name>
-		<Attributes>inviterid(1),inviteeid(2),status(3)</Attributes>
+		<Attributes>inviterid(1),inviteeid(2)</Attributes>
 	</Table>
 	<Table>
 		<Name>Resources</Name>
