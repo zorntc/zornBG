@@ -11,7 +11,7 @@ public class Design {
 
 
 
-	int num_partitions=20;//User Entered the number of Servers Assume it is 20
+	int num_partitions=20;	//User Entered the number of Servers Assume it is 20
 
 	// Don't use these lists directly. Use get() below to prevent modifying list itself.
 	LinkedList<Table> partitionList = new LinkedList<Table>();
@@ -97,6 +97,9 @@ public class Design {
 				ta.replication = false;
 				ta.modifiedCol.add(column[i]);
 			}
+			
+			if(LNS.memoryEfficient)
+				ta.replication = false;
 		}
 
 		// sort Table
@@ -144,6 +147,8 @@ public class Design {
 				}
 			}
 
+			// TODO still need to give one descent routing attribute
+			
 			if(!found)
 				replicationList.add(new Table(se.getTableName()));
 		}
@@ -216,6 +221,7 @@ public class Design {
 	}
 
 	private void printlog(){
+		String s;
 		System.out.println(" == PARTITION & SECONDARY INDEX ==");
 		for(Table tl: partitionList){
 			System.out.printf("%s\tby %s,\tsecondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
@@ -226,7 +232,13 @@ public class Design {
 		}
 		System.out.println(" == ROUTING ATTRIBUTE ==");
 		for(Procedure p: routAtrrList){
-			System.out.printf("%s:\t%s\n", p.name, p.getRoutAtrr());
+			s = p.getRoutAtrr();
+			for(Table tl: replicationList){
+				if(s.toLowerCase().endsWith(tl.name.toLowerCase())){
+					s += "\n\t(Routing to replicated table)";
+				}
+			}
+			System.out.printf("%s:\n\t%s\n", p.name, s);
 		}
 /*
 		///////Arpit Code Extracting Attribute Names
@@ -419,18 +431,9 @@ public class Design {
 		Design best = new Design();
 		best.init();
 		best.printlog("Initial Design");
-
+		
 		best = LNS.relaxThenSearch(best);
 		best.printlog("Final Design");
-
-		/*
-		 LinkedList<Table> partitionList = new LinkedList<Table>();
-		 LinkedList<Table> replicationList = new LinkedList<Table>();
-		 LinkedList<Table> tableList = new LinkedList<Table>();
-		 LinkedList<Procedure> routAtrrList = new LinkedList<Procedure>();
-		 */
-
-
 	}
 }
 

@@ -3,10 +3,13 @@ import java.util.*;
 public class LNS {
 
 	// environmental parameters
-	static final int LOCAL_SEARCH_ROUND = 10000000;
-	static final int noImproveRndMax = 100;		// max round number allowed for local procedure search without improving 
-	static final double relaxation_factor_min = 0.25;
-	static final double relaxation_factor_max = 0.5;
+	static final int MAX_NO_IMPROVE_ROUND = 1000;
+		/* 
+		 * false to run normal Horticulture
+		 * true to run memory efficient version
+		 */
+	public static final boolean memoryEfficient = true;
+	private static final double smallPenaltyFactor = 0.0000001D;
 	
 	static int noImproveRnd = 0;		// global conuter for noImproveRnd;
 	
@@ -79,7 +82,7 @@ public class LNS {
 			}
 		}
 
-		// clearRouteAtrr()
+		// clearRouteAtrr() for relaxed table;
 		for(Integer ind: relaxedProcedureIndex)
 			current.routAtrrList.get(ind).clearRouteAtrr();
 		
@@ -87,7 +90,7 @@ public class LNS {
 	}
 	
 	public static boolean searchProcedure(TreeSet<Integer> routingUnknown){
-		if(noImproveRnd++ > LOCAL_SEARCH_ROUND)
+		if(noImproveRnd++ > MAX_NO_IMPROVE_ROUND)
 			return false;
 		
 		if(routingUnknown.size() <= 0)
@@ -191,6 +194,25 @@ public class LNS {
 		partitionTableSize = d.partitionList.size();
 	}
 	
+	static double smallPenalty(Design d){
+		int ret = d.getReplicationList().size();
+		return ((double) ret) * smallPenaltyFactor;
+	}
+	
+	static double cost = 0.0;
+	public static double estimateCost(Design d){
+		/* DEBUG */
+		cost--;
+		//cost = 0;
+		//cost = (double) d.attributeExtractionHorticultureFinalProject(d);
+		return (memoryEfficient)? cost + smallPenalty(d) : cost;
+/*	DEBUG test cost model
+		if(cost >= -100)
+			cost = -10;
+		return cost++;
+*/
+	}
+	
 	static void setBest(Design de, double dou){
 		best = new Design(de);
 		bestCost = dou;
@@ -206,23 +228,12 @@ public class LNS {
 		}
 		*/
 	}
-	
+
 	static boolean compareCost(Design de){
 		double newCost = estimateCost(de);
 		if(newCost >= bestCost)
 			return false;
 		setBest(de, newCost);
 		return true;
-	}
-	
-	// need Arpit to fill this FIXME
-	static double cost = 0.0;
-	public static double estimateCost(Design d){
-		return (double) d.attributeExtractionHorticultureFinalProject(d);
-/*
-		if(cost >= -100)
-			cost = -10;
-		return cost++;
-*/
 	}
 }
