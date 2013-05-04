@@ -2,6 +2,9 @@ import java.util.*;
 
 public class Design {
 
+	// environmental parameter, how many servers can contain a partitioned table 
+	static final int num_partitions = 20;
+
 	static boolean[] readOnly = {};
 	static int[] workloadCnt = {};
 	static String[] actionName = {};
@@ -9,9 +12,11 @@ public class Design {
 	static String[] queryCommand = {};
 	static String[] table = {};
 
+	// cost model calculating
+	static int distTranscationCount;
+	static int partitioncount;
+	static int frequencyBG;
 
-
-	int num_partitions=20;	//User Entered the number of Servers Assume it is 20
 
 	// Don't use these lists directly. Use get() below to prevent modifying list itself.
 	LinkedList<Table> partitionList = new LinkedList<Table>();
@@ -37,7 +42,9 @@ public class Design {
 	private int num_tables;
 
 	public Design(Design d){
-		this.partitionList = new LinkedList<Table>(d.partitionList);
+		for(Table ta : d.partitionList)
+			this.partitionList.add(new Table(ta));
+
 		this.replicationList = new LinkedList<Table>(d.replicationList);
 		this.tableList = new LinkedList<Table>(d.tableList);
 		for(Procedure p : d.routAtrrList){
@@ -97,7 +104,7 @@ public class Design {
 				ta.replication = false;
 				ta.modifiedCol.add(column[i]);
 			}
-			
+
 			if(LNS.memoryEfficient)
 				ta.replication = false;
 		}
@@ -108,7 +115,7 @@ public class Design {
 		Arrays.sort(partitionArray);
 		partitionList = new LinkedList<Table>();
 
-		Iterator<String> ite;
+
 		for(Table t : partitionArray){
 
 			// get secondary index candidates
@@ -120,14 +127,11 @@ public class Design {
 			if(i >= HorticultureFinalProject.schemaExtractor.length)
 				System.err.println("table name not found");
 
-			t.secondCdt.addAll(HorticultureFinalProject.schemaExtractor[i].getEveryAttribute());
+			if(!LNS.memoryEfficient)
+				t.setSecondCdt(i);
+
 			// TODO enable this when Arpit finished
 			// t.setNumTxn(HorticultureFinalProject.schemaExtractor[i].getTxnCnt());
-			ite = t.secondCdt.iterator();
-			while(ite.hasNext()){
-				if(t.modifiedCol.contains(ite.next().toLowerCase()))
-					ite.remove();
-			}
 
 			partitionList.add(t);
 		}
@@ -148,9 +152,16 @@ public class Design {
 			}
 
 			// TODO still need to give one descent routing attribute
-			
-			if(!found)
-				replicationList.add(new Table(se.getTableName()));
+
+			if(!found){
+				Table ta = new Table(se.getTableName());
+				if(LNS.memoryEfficient){
+					ta.replication = false;
+					partitionList.add(ta);
+				}
+				else
+					replicationList.add(ta);
+			}
 		}
 
 		ite = partitionList.descendingIterator();
@@ -215,32 +226,54 @@ public class Design {
 		}
 	}
 
-	private void printlog(String s){
+	private void printlog(String s, boolean printBest){
 		System.out.println("\n  = = = " + s + " = = =\n");
-		printlog();
+		printlog(printBest);
 	}
 
-	private void printlog(){
+	private void printlog(boolean printBest){
 		String s;
+
+		if(LNS.memoryEfficient){
+			System.out.println(" == DISCARD ==");
+			for(Table tl: partitionList){
+				if(tl.getPartAttr().equalsIgnoreCase("NIL"))
+					System.out.println(tl.name);			
+			}
+		}
+
 		System.out.println(" == PARTITION & SECONDARY INDEX ==");
 		for(Table tl: partitionList){
-			System.out.printf("%s\tby %s,\tsecondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
+			if(tl.getPartAttr().equalsIgnoreCase("NIL") && LNS.memoryEfficient)
+				continue;
+			System.out.printf("%s\t|%s|\t> secondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
 		}
-		System.out.println(" == REPLICATION ==");
-		for(Table tl: replicationList){
+
+		System.out.println(" == REPLICATE ==");
+		for(Table tl: replicationList)
 			System.out.printf("%s\n", tl);
-		}
+
 		System.out.println(" == ROUTING ATTRIBUTE ==");
 		for(Procedure p: routAtrrList){
+			if(p.frequency == 0)
+				continue;
 			s = p.getRoutAtrr();
 			for(Table tl: replicationList){
 				if(s.toLowerCase().endsWith(tl.name.toLowerCase())){
-					s += "\n\t(Routing to replicated table)";
+					s += " [Replicated] ";
 				}
 			}
-			System.out.printf("%s:\n\t%s\n", p.name, s);
+			System.out.printf("%s\t> %s\n", s, p.name);
 		}
-/*
+
+		if(printBest){
+			System.out.println("Best Cost : "+LNS.bestCost);
+			System.out.println("Total Number of Procedures = "+LNS.bestFrequencyBG);
+			System.out.println("Total Distributed Transaction Count = "+LNS.bestDistTranscationCount);
+			System.out.println("Total Number of Partitions = "+num_partitions);
+			System.out.println("Total Partition Count = "+LNS.bestPartitioncount);
+		}
+		/*
 		///////Arpit Code Extracting Attribute Names
 		Design design= new Design();
 		design.setPartitionList(partitionList);
@@ -253,7 +286,7 @@ public class Design {
 		attributeExtractionHorticultureFinalProject(design);
 
 		///////Arpit Code Extracting Attribute Nmaes
-*/
+		*/
 	}
 	ArrayList<String> frequency;
 	int transactioncount=0;
@@ -283,157 +316,321 @@ public class Design {
 		System.out.println(column.length);
 		frequency=HorticultureFinalProject.getFrequencyNames();
 		table = HorticultureFinalProject.getTableNames(table);
-		int distTranscationCount=0;
-		int partitioncount=0;
+		distTranscationCount=0;
+		partitioncount=0;
 		int index=0;
 		System.out.println("\n Schema Extractor Logic");
 		SchemaExtractor[] schemaExtractor= new SchemaExtractor[5];
 		schemaExtractor=HorticultureFinalProject.getSchemaExtractor();
 		for(int x=0;x<(schemaExtractor.length);x++)
 		{
-			System.out.println("Table : " + schemaExtractor[x].getTableName());  
+			System.out.println("Table : " + schemaExtractor[x].getTableName());
 			System.out.println("Attribute : " + schemaExtractor[x].getAttributeNames());
 		}
 		System.out.println("\n Schema Extractor Logic");
 		String[] splits,splits1,splits2;
 		String result=null;
+		boolean shouldAdd = false;
+		boolean writereplication=false;
+		boolean found = false;
+
+
+		System.out.println("\n ****************UNIT TESTING**********************************************");
+
+		System.out.println("Cost Model Part For BG ie Calculating Coordination Cost");
+		System.out.println(" == PARTITION & SECONDARY INDEX ==");
+		for(Table tl: design.getPartitionList()){
+			System.out.printf("%s\tby %s,\tsecondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
+		}
+		System.out.println(" == REPLICATION ==");
+		for(Table tl: design.getReplicationList()){
+			System.out.printf("%s\n", tl);
+		}
+		System.out.println(" == ROUTING ATTRIBUTE ==");
+		for(Procedure p: design.getRoutAtrrList()){
+			System.out.printf("%s:\t%s\n", p.name, p.getRoutAtrr());
+		}
+
+		// int distTranscationCount=0;
+
+		int actionChecking=0;
+		frequencyBG=0;
+
+		for(int i=0;i<actionName.length;i++)
+		{
+			if(i==0)
+			{
+				frequencyBG=Integer.parseInt(frequency.get(i))+frequencyBG;
+			}
+
+			if(i!=0)
+			{
+				if(!(actionName[i-1].equalsIgnoreCase(actionName[i])))
+					frequencyBG=Integer.parseInt(frequency.get(i))+frequencyBG;
+			}
+		}   
+
 		for(int i=0;i<column.length;i++)
 		{
-			System.out.println("*************************");
-			System.out.println("\nColumn-"+column[i]);
-			System.out.println(column[i].length());
-			System.out.println("\nFrequency:-"+frequency.get(i));
-			System.out.println("\n Table:-"+table[i]);
-			System.out.println(table[i].length());
 
-			for(Table tl: design.getPartitionList()){
-				//System.out.printf("%s\tby %s,\tsecondary index: %s\n", tl.name, tl.getPartAttr(), tl.getSecIndex());
-				System.out.println("\nTablehaxjxjn:-"+tl.name);
-				System.out.println("\nTablehaxjxjn:-"+tl.name.length());
-				System.out.println("\nFdkldkle:-"+tl.getPartAttr());
-				System.out.println("\nFdkldkle:-"+tl.getPartAttr().length());
 
-				if( ( (tl.name).toLowerCase().replace(" ","").equalsIgnoreCase(table[i].toLowerCase().replace(" ","")) )&&((tl.getPartAttr().toLowerCase().replace(" ","").equalsIgnoreCase(column[i].replace(" ",""))))   )
-				{
-					distTranscationCount=distTranscationCount+(Integer.parseInt(frequency.get(i)));
-					System.out.println("Distributed Transaction Count+"+distTranscationCount);
 
-					for(int x=0;x<(schemaExtractor.length);x++)
+			System.out.println("\nRecords start Unit Testing");
+
+
+			int replication1=0,secondaryindex1=0,partition1=0,routing1=0;
+
+
+
+
+
+			if(Integer.parseInt(frequency.get(i))!=0)
+			{
+				// Partition Index
+				for(Table tl: design.getPartitionList()){
+					//System.out.println("Table Name: "+tl.name+" "+table[i]);
+					// System.out.println("part attr: "+tl.getPartAttr()+" "+column[i]);
+					if( ( (tl.name).toLowerCase().replace(" ","").equalsIgnoreCase(table[i].toLowerCase().replace(" ","")) )&&((tl.getPartAttr().toLowerCase().replace(" ","").equalsIgnoreCase(column[i].replace(" ",""))))   ){
+						partition1=1;
+
+					}
+				}
+
+
+				// Secondary Index
+
+				for(Table tl: design.getPartitionList()){
+					System.out.println("Secondary index Table Name: "+tl.name+ " " +table[i]);
+					System.out.println("Secondary index Index Name: "+tl.getSecIndex()+ " "+column[i]);
+
+
+					for(int count=0;count<tl.getSecIndex().size();count++)
 					{
-						//System.out.println("Schema Extractor Table : " + schemaExtractor[x].getTableName());  
-						//System.out.println("Schema Extractor Attribute : " + schemaExtractor[x].getAttributeNames());
-						if(( (schemaExtractor[x].getTableName()).toLowerCase().replace(" ","").equalsIgnoreCase(table[i].toLowerCase().replace(" ","")) ))
-						{
-							index=x;
-							System.out.println("Schema Extractor Attribute Names+"+schemaExtractor[x].getAttributeNames());
-							splits = (schemaExtractor[x].getAttributeNames().toLowerCase()).split(column[i].replace(" ","").toLowerCase());
-							System.out.println("Splits"+splits[1]);
-							splits[1].indexOf('(');
-							splits[1].indexOf(')');
-							result=splits[1].substring(splits[1].indexOf('(')+1,splits[1].indexOf(')'));
-							System.out.println("Result"+result);
-							partitioncount=partitioncount+( (Integer.parseInt(frequency.get(i)))*((Integer.parseInt(result))));
-							System.out.println("Partition Count+"+partitioncount);
 
-							//splits1=splits[1].split("(");
-							//splits2=splits1[0].split(")");
-
-							//System.out.println("Split 2 value+"+splits2[0]);
-
+						if( ( (tl.name).toLowerCase().replace(" ","").equalsIgnoreCase(table[i].toLowerCase().replace(" ","")) )&&((tl.getSecIndex().get(count).toString().toLowerCase().replace(" ","").equalsIgnoreCase(column[i].replace(" ",""))))   ){
+							secondaryindex1=1;
 
 						}
 					}
+				}
+
+
+
+
+				// Replication Attribute
+
+				for(Table tl: design.getReplicationList()){
+					String s1 = (tl.name).toLowerCase().replace(" ",""), s2 = table[i].toLowerCase().replace(" ","");
+					boolean cmp =s1.equalsIgnoreCase(s2);
+
+
+					//System.out.println("Table Name "+tl.name + " s1 = " + s1 + " s2 = " + s2 + "\t" + cmp) ;
+					if( ( cmp )){
+						replication1 = 1;
+
+					}
+
+
 
 				}
+
+
+
+				// Routing Attribute
+
+				for(Procedure p: design.getRoutAtrrList()){
+
+
+					if(p.name.equalsIgnoreCase(actionName[i]))
+					{
+						//System.out.println("Action Name: "+p.name);
+						//System.out.println("routing attr: "+p.getRoutAtrr());
+
+						String s=p.getRoutAtrr();
+						String[] split1 = s.split(" ");
+						if(split1.length>2)
+						{
+							System.out.println("Split Name: "+split1[2]+" "+table[i]);
+							System.out.println("Split Name: "+split1[1]);
+							System.out.println("Split Name: "+split1[0]+" "+column[i]);
+							if( ( (split1[2]).toLowerCase().replace(" ","").equalsIgnoreCase(table[i].toLowerCase().replace(" ","")) )&&((split1[0].toLowerCase().replace(" ","").equalsIgnoreCase(column[i].replace(" ",""))))   ){
+								routing1 = 1;
+
+							}  
+						}
+					}
+				}
+				//}
+
+				if(Integer.parseInt(frequency.get(i))!=0)
+				{
+
+					System.out.println("Table name"+table[i]);
+					System.out.println("Attribute Name+"+column[i]);
+					System.out.println("\nAction Names+"+actionName[i]);
+					System.out.println("Partitioning Attribute"+partition1);
+					System.out.println("SecondaryIndex+"+secondaryindex1);
+					System.out.println("Routing Attribute"+routing1);
+					System.out.println("Replication Attribute"+replication1);
+					System.out.println("Records End Unit Testing");
+				}
+
+
+
+		}
+
+		if(readOnly[i]){
+
+			if((partition1==0)&&(secondaryindex1==0)&&(routing1==0)&&(replication1==0))
+			{
+
+				//frequencyBG+=(Integer.parseInt(frequency.get(i)));         
+				distTranscationCount=distTranscationCount+(Integer.parseInt(frequency.get(i)));
+				partitioncount=partitioncount+num_partitions*Integer.parseInt(frequency.get(i));
+
+			}
+
+			if((routing1==0)&&(partition1==1))
+			{
+				distTranscationCount=distTranscationCount+(Integer.parseInt(frequency.get(i)));
+				partitioncount=partitioncount+num_partitions*Integer.parseInt(frequency.get(i));
+			}
+		}
+		else
+		{
+			if(!(actionName[i-1].equalsIgnoreCase(actionName[i])))
+			{
+				actionChecking=0; 
+			}
+
+
+			if((replication1==1)||(secondaryindex1==1))
+			{
+
+
+
+				if(actionChecking==0)
+				{
+					distTranscationCount=distTranscationCount+(Integer.parseInt(frequency.get(i)));
+					partitioncount=partitioncount+num_partitions*Integer.parseInt(frequency.get(i));
+
+				}
+
+
+				actionChecking=1;
+
+
+
+			}
+			if((partition1==1)&&(secondaryindex1==0)&&(routing1==0)&&(replication1==0))
+			{
+
+				if(actionChecking==0)
+				{
+					distTranscationCount=distTranscationCount+(Integer.parseInt(frequency.get(i)));
+					partitioncount=partitioncount+num_partitions*Integer.parseInt(frequency.get(i));
+					actionChecking=1;
+				}
+
+				actionChecking=1;
+
+
+
 			}
 
 
 		}
-		//int num_partitions=20;//User Entered the number of Servers Assume it is 20
-		System.out.println("Total Number of Proceedures"+HorticultureFinalProject.getProceedureExtractor().length);
-		System.out.println("Total Distributed Transaction Count+"+distTranscationCount);
-		System.out.println("Total Number of Partitions+"+num_partitions);
-		System.out.println("Total Partition Count+"+partitioncount);
 
 
-
-
-
-
-
-
-
-		System.out.println(frequency.size());
-		float k=(1+(distTranscationCount/HorticultureFinalProject.getProceedureExtractor().length));
-		System.out.println("K value"+k);
-		coordinationcost=(partitioncount*k/((HorticultureFinalProject.getProceedureExtractor().length)*num_partitions));
-		System.out.println("Coordination cost"+coordinationcost);
-
-
-
-		//**************Extracting Attrribute Names from Horticulture Final Project******************************
-
-
-		///////////////////////Cost Model Part//////////////////////
-		return coordinationcost;
 	}
+	//int num_partitions=20;//User Entered the number of Servers Assume it is 20
+	System.out.println("Final Results");
+	System.out.println("Total Number of Proceedures = "+frequencyBG);
+	System.out.println("Total Distributed Transaction Count = "+distTranscationCount);
+	System.out.println("Total Number of Partitions = "+num_partitions);
+	System.out.println("Total Partition Count = "+partitioncount);
+	System.out.println("Final Results");
 
-	private void init(){
-		partition();    // is not finished without calling replication()
-		replication();
-		routingAttr();       
-	}
 
 
-	static void passArgumets(){
-		String[] nil = null;
 
-		// passing Arpit xml file
-		HorticultureFinalProject.main(nil);
 
-		// Get entries from HorticultureFinalProject
-		column = HorticultureFinalProject.getAttributeNames(column);
-		table = HorticultureFinalProject.getTableNames(table);
-		queryCommand = HorticultureFinalProject.getQueryNames(queryCommand);
-		readOnly = HorticultureFinalProject.getReadOnly(readOnly);
-		actionName = HorticultureFinalProject.getActionNames(actionName);
-		workloadCnt = new int[actionName.length];
+	float distgdfgfh=distTranscationCount;
+	float p=partitioncount;
 
-		int i;
-		String s;
 
-		for(i = actionName.length - 1; i >= 0; i--){
-			for(WorkloadExtractor wle : HorticultureFinalProject.workloadExtractor){
-				s = wle.getAction();
-				if(actionName[i].equalsIgnoreCase(s)){
-					workloadCnt[i] = Integer.parseInt(wle.getFrequency());
-					break;
-				}
+	System.out.println(frequency.size());
+	float k=(1+(distgdfgfh/frequencyBG));
+	System.out.println("K value"+k);
+	coordinationcost=(p/((frequencyBG)*num_partitions));
+	coordinationcost=coordinationcost*k;
+	System.out.println("Coordination cost = "+coordinationcost);
+
+
+
+	//**************Extracting Attrribute Names from Horticulture Final Project******************************
+
+
+	///////////////////////Cost Model Part//////////////////////
+	return coordinationcost;
+}
+
+private void init(){
+	partition();    // is not finished without calling replication()
+	replication();
+	routingAttr();       
+}
+
+
+static void passArgumets(){
+	String[] nil = null;
+
+	// passing Arpit xml file
+	HorticultureFinalProject.main(nil);
+
+	// Get entries from HorticultureFinalProject
+	column = HorticultureFinalProject.getAttributeNames(column);
+	table = HorticultureFinalProject.getTableNames(table);
+	queryCommand = HorticultureFinalProject.getQueryNames(queryCommand);
+	readOnly = HorticultureFinalProject.getReadOnly(readOnly);
+	actionName = HorticultureFinalProject.getActionNames(actionName);
+	workloadCnt = new int[actionName.length];
+
+	int i;
+	String s;
+
+	for(i = actionName.length - 1; i >= 0; i--){
+		for(WorkloadExtractor wle : HorticultureFinalProject.workloadExtractor){
+			s = wle.getAction();
+			if(actionName[i].equalsIgnoreCase(s)){
+				workloadCnt[i] = Integer.parseInt(wle.getFrequency());
+				break;
 			}
-			column[i] = column[i].trim();
 		}
-
-		/* DEBUG
-		   for(i=0;i<readOnly.length;i++)           
-		   System.out.println(actionName[i] +'\t'+ column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+readOnly[i]);
-		   */
-
-		if(isArgLengthEqual() != null){
-			System.err.println("arrays length is inconsistent: " + isArgLengthEqual());
-			System.exit(1);
-		}
+		column[i] = column[i].trim();
 	}
 
-	public static void main(String[] args){
+	/* DEBUG
+	   for(i=0;i<readOnly.length;i++)           
+	   System.out.println(actionName[i] +'\t'+ column[i]+'\t'+table[i]+'\t'+queryCommand[i]+'\t'+readOnly[i]);
+	   */
 
-		passArgumets();
-
-		Design best = new Design();
-		best.init();
-		best.printlog("Initial Design");
-		
-		best = LNS.relaxThenSearch(best);
-		best.printlog("Final Design");
+	if(isArgLengthEqual() != null){
+		System.err.println("arrays length is inconsistent: " + isArgLengthEqual());
+		System.exit(1);
 	}
+}
+
+public static void main(String[] args){
+
+	passArgumets();
+
+	Design best = new Design();
+	best.init();
+	best.printlog("Initial Design", false);
+
+	best = LNS.relaxThenSearch(best);
+	best.printlog("Final Design", true);
+}
 }
 

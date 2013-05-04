@@ -3,19 +3,23 @@ import java.util.*;
 public class LNS {
 
 	// environmental parameters
-	static final int MAX_NO_IMPROVE_ROUND = 1000;
 		/* 
 		 * false to run normal Horticulture
 		 * true to run memory efficient version
 		 */
 	public static final boolean memoryEfficient = true;
 	private static final double smallPenaltyFactor = 0.0000001D;
+	static final int MAX_NO_IMPROVE_ROUND = 1000;
 	
-	static int noImproveRnd = 0;		// global conuter for noImproveRnd;
-	
+	static int noImproveRnd = 0;		// global counter for noImproveRnd;
+
 	// currently best design
 	private static Design best;			
-	private static double bestCost;
+	static double bestCost;
+	static int bestDistTranscationCount;
+	static int bestPartitioncount;
+	static int bestFrequencyBG;
+	
 	
 	// current Design
 	private static Design current;
@@ -117,10 +121,11 @@ public class LNS {
 		
 		if(!flipBase[tableIndex])				
 			return fixRelaxTable(tableIndex + 1, localPartSize);
+		/* DEBUG
 		if(current.tableList.get(tableIndex).replication
 				|| (current.tableList.get(tableIndex).attrCdt.size() == 0))
 			System.err.println("Something Wrong with fixRelaxTable()");
-		
+		*/
 		Table tmp = current.tableList.get(tableIndex);
 		// use all attrCdt to set routing attribute
 		for(String attrC: tmp.attrCdt){	
@@ -202,21 +207,27 @@ public class LNS {
 	static double cost = 0.0;
 	public static double estimateCost(Design d){
 		/* DEBUG */
-		cost--;
+		//cost--;
 		//cost = 0;
-		//cost = (double) d.attributeExtractionHorticultureFinalProject(d);
+		
+		cost = (double) d.attributeExtractionHorticultureFinalProject(d);
 		return (memoryEfficient)? cost + smallPenalty(d) : cost;
-/*	DEBUG test cost model
+
+		/*	DEBUG test cost model
 		if(cost >= -100)
 			cost = -10;
 		return cost++;
-*/
+		 */
 	}
 	
 	static void setBest(Design de, double dou){
 		best = new Design(de);
 		bestCost = dou;
 		noImproveRnd = 0;
+		
+		bestDistTranscationCount = Design.distTranscationCount;
+		bestPartitioncount = Design.partitioncount;
+		bestFrequencyBG = Design.frequencyBG;
 		
 		/* DEBUG
 		int i, j;

@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,7 +11,7 @@ import org.xml.sax.SAXParseException;
 
 
 public class HorticultureFinalProject{
-  
+ 
     static SchemaExtractor[] schemaExtractor= new SchemaExtractor[5];
     public static SchemaExtractor[] getSchemaExtractor() {
         return schemaExtractor;
@@ -33,8 +34,8 @@ public class HorticultureFinalProject{
 
 
     static WorkloadExtractor[] workloadExtractor= new WorkloadExtractor[19];
-  
-  
+ 
+ 
     public static WorkloadExtractor[] getWorkloadExtractor() {
         return workloadExtractor;
     }
@@ -42,13 +43,18 @@ public class HorticultureFinalProject{
     public static void setWorkloadExtractor(WorkloadExtractor[] workloadExtractor) {
         HorticultureFinalProject.workloadExtractor = workloadExtractor;
     }
+    static int totalworkload1=0;
+    public static int totalworkload()
+    {
+        return totalworkload1;
+    }
 
     public static void setworkload()
     {
-      
+     
         int counter=0;
         String Name,attributes,backup_of_s;
-      
+     
         try {
             DocumentBuilderFactory odbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder odb =  odbf.newDocumentBuilder();
@@ -65,35 +71,35 @@ public class HorticultureFinalProject{
                 if(FPN.getNodeType() == Node.ELEMENT_NODE)
           {
                     Element firstPElement = (Element)FPN;
-                 
+                
                     NodeList oNameList = firstPElement.getElementsByTagName("Name");
                     Element firstNameElement = (Element)oNameList.item(0);
                     NodeList textNList = firstNameElement.getChildNodes();
-                  
-                  
-                  
+                 
+                 
+                 
                     backup_of_s = new String(((Node)textNList.item(0)).getNodeValue().trim().toString());
-                  
-                  
+                   
+                 
                     //System.out.println("Backupofs"+backup_of_s);
                     workloadExtractor[s]=new WorkloadExtractor();
-                  
-                    workloadExtractor[s].setAction(backup_of_s);
-                  
-                  
                  
+                    workloadExtractor[s].setAction(backup_of_s);
+                 
+                 
+                
                     NodeList IDList = firstPElement.getElementsByTagName("frequency");
                     Element IDElement = (Element)IDList.item(0);
                     NodeList textIDList = IDElement.getChildNodes();
+                
                  
-                  
                     backup_of_s = new String(((Node)textIDList.item(0)).getNodeValue().trim());
-                  
+                 
                     //System.out.println("Backupofs"+backup_of_s);
                     workloadExtractor[s].setFrequency(backup_of_s);
-                  
-                  
-                          
+                   // totalworkload1=totalworkload1+Integer.parseInt(backup_of_s);
+                 
+                         
                 }    //end of if clause
             }        //end of for loop with variable s
         }catch (SAXParseException err) {
@@ -105,14 +111,14 @@ public class HorticultureFinalProject{
         }
  
 
-      
+     
     }
-  
+ 
     public static void setProceedure()
     {
         int counter=0;
         String Name,attributes,backup_of_s;
-      
+     
         try {
             DocumentBuilderFactory odbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder odb =  odbf.newDocumentBuilder();
@@ -129,21 +135,21 @@ public class HorticultureFinalProject{
                 if(FPN.getNodeType() == Node.ELEMENT_NODE)
           {
                     Element firstPElement = (Element)FPN;
-                 
+                
                     NodeList oNameList = firstPElement.getElementsByTagName("syntax");
                     Element firstNameElement = (Element)oNameList.item(0);
                     NodeList textNList = firstNameElement.getChildNodes();
-                  
-                  
-                  
+                 
+                 
+                 
                     backup_of_s = new String(((Node)textNList.item(0)).getNodeValue().trim().toString());
                     //System.out.println(backup_of_s);
-                  
+                 
                     proceedureExtractor[s]=new ProceedureExtractor();
                     proceedureExtractor[s].setQuery(backup_of_s);
-                  
-                  
-                          
+                 
+                 
+                         
                 }    //end of if clause
             }        //end of for loop with variable s
         }catch (SAXParseException err) {
@@ -155,14 +161,14 @@ public class HorticultureFinalProject{
         }
  
     }
-  
+ 
 
-  
+ 
     public static void setSchema()
     {
         int counter=0;
         String Name,attributes,backup_of_s;
-      
+     
         try {
             DocumentBuilderFactory odbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder odb =  odbf.newDocumentBuilder();
@@ -179,31 +185,31 @@ public class HorticultureFinalProject{
                 if(FPN.getNodeType() == Node.ELEMENT_NODE)
           {
                     Element firstPElement = (Element)FPN;
-                 
+                
                     NodeList oNameList = firstPElement.getElementsByTagName("Name");
                     Element firstNameElement = (Element)oNameList.item(0);
                     NodeList textNList = firstNameElement.getChildNodes();
-                  
-                  
-                  
+                 
+                 
+                 
                     backup_of_s = new String(((Node)textNList.item(0)).getNodeValue().trim().toString());
-                  
-                  
+                 
+                 
                     schemaExtractor[s]=new SchemaExtractor();
                     schemaExtractor[s].setTableName(backup_of_s);
-                  
-                  
                  
+                 
+                
                     NodeList IDList = firstPElement.getElementsByTagName("Attributes");
                     Element IDElement = (Element)IDList.item(0);
                     NodeList textIDList = IDElement.getChildNodes();
+                
                  
-                  
                     backup_of_s = new String(((Node)textIDList.item(0)).getNodeValue().trim());
-                 
+                
                     schemaExtractor[s].setAttributeNames(backup_of_s);
-                  
-                          
+                 
+                         
                 }    //end of if clause
             }        //end of for loop with variable s
         }catch (SAXParseException err) {
@@ -215,10 +221,10 @@ public class HorticultureFinalProject{
         }
  
     }
-  
-  
+ 
+ 
     static ArrayList<String> AttributeNames = new ArrayList<String>();
-  
+ 
 
     public static void setAttributeNames(ArrayList<String> attributeNames) {
         AttributeNames = attributeNames;
@@ -226,7 +232,7 @@ public class HorticultureFinalProject{
 
 
     static ArrayList<String> TableNames = new ArrayList<String>();
-  
+ 
 
     public static void setTableNames(ArrayList<String> tableNames) {
         TableNames = tableNames;
@@ -234,7 +240,7 @@ public class HorticultureFinalProject{
 
 
     static ArrayList<String> QueryNames = new ArrayList<String>();
-   
+  
 
     public static void setQueryNames(ArrayList<String> queryNames) {
         QueryNames = queryNames;
@@ -242,7 +248,7 @@ public class HorticultureFinalProject{
 
 
     static ArrayList<String> ActionNames = new ArrayList<String>();
-  
+ 
 
     public static void setActionNames(ArrayList<String> actionNames) {
         ActionNames = actionNames;
@@ -253,7 +259,7 @@ public class HorticultureFinalProject{
 
  
 
-   
+  
 
     public static ArrayList<String> getFrequencyNames() {
         return FrequencyNames;
@@ -267,7 +273,7 @@ public class HorticultureFinalProject{
     public static String[] getAttributeNames(String[] sa){
         return AttributeNames.toArray(sa);
     }
-   
+  
     public static String[] getTableNames(String[] sa){
         return TableNames.toArray(sa);
     }
@@ -297,10 +303,10 @@ public class HorticultureFinalProject{
         }
         return ret;
     }
-    /* Zorn added end */   
-   
+    /* Zorn added end */  
   
-  
+ 
+ 
     public static void printIndexes(String string, char ch,ArrayList k) {
         int index = 0;
         while((index = string.indexOf(ch, index)) != -1) {
@@ -310,55 +316,55 @@ public class HorticultureFinalProject{
             index++;
         }
     }
-  
+ 
     public static void computePartition(String Query,int counter)
     {
         ArrayList storingDotPosition = new ArrayList();
         ArrayList storingQuestionMarkPosition = new ArrayList();
         ArrayList storingspacePosition=new ArrayList();
         ArrayList storingTableposition=new ArrayList();
-      
+     
         System.out.println("*******************Proceedure Partition Analyzation*******************************");
         System.out.println("Input Query::-"+Query);
         //Select u.* from User u, Friendship f where f.inviteeId=? and f.ReqId=u.userid and    f.status=confirmed
-      
+     
         String[] splits = Query.split("where");
         System.out.println("splits.size: " + splits.length);
-      
+     
         System.out.println("Line"+splits[0]);
         System.out.println("Line"+splits[1]);
-      
+     
         String[] splits1 = splits[0].split("from");
-      
+     
         printIndexes(splits[1], '.',storingDotPosition);
         printIndexes(splits[1], '?',storingQuestionMarkPosition);
         printIndexes(splits[0], ' ',storingspacePosition);
-      
-      
-      
-      
+     
+     
+     
+     
         System.out.println("****************Dot Position Stored Display Logic*************");
         for(int i=0;i<storingDotPosition.size();i++)
         {
             System.out.println("Values"+storingDotPosition.get(i));
         }
         System.out.println("****************Dot Position Stored Display Logic*************");
-      
-      
+     
+     
         System.out.println("****************Question Mark Position Stored Display Logic*************");
         for(int i=0;i<storingQuestionMarkPosition.size();i++)
         {
             System.out.println("Values"+storingQuestionMarkPosition.get(i));
         }
         System.out.println("****************Question Mark Position Stored Display Logic*************");
-          
+         
         System.out.println("****************Printing values between . and ? Putting Attribute Names and Table Names*************");
         String result="";
         String QueryName="";
         int start=0;
         int end=0;
         int storeIndex=0;
-      
+     
         for(int i=0;i<storingQuestionMarkPosition.size();i++)
         {
             //start=
@@ -379,7 +385,7 @@ public class HorticultureFinalProject{
                     break;
                 }
             }
-          
+         
             QueryName=splits[0].substring(0,Integer.parseInt(storingspacePosition.get(0).toString()));
             QueryNames.add(QueryName);
             System.out.println("Query"+QueryNames.get(i).toString());
@@ -387,8 +393,8 @@ public class HorticultureFinalProject{
             System.out.println("Table"+TableNames.get(i).toString());
             ActionNames.add(workloadExtractor[counter].getAction());
             FrequencyNames.add(workloadExtractor[counter].getFrequency());
-          
-      
+         
+     
         }
         for(int i=0;i<AttributeNames.size();i++)
         {
@@ -402,45 +408,56 @@ public class HorticultureFinalProject{
             //System.out.println("Result:-"+result);
             System.out.println("Query Name Values:-"+QueryNames.get(i));
         }
-      
+     
         System.out.println("****************Printing values between . and ? Putting Attribute Names and Table Names*************");
-      
-      
-      
+     
+     
+     
         System.out.println("*******************Proceedure Partition Analyzation*******************************");
     }
+ 
   
-   
     public static void  actuallogic()
     {
           setSchema();
 
-         
+        
           for(int x=0;x<(schemaExtractor.length);x++)
           {
-              System.out.println("Table : " + schemaExtractor[x].getTableName());  
+              System.out.println("Table : " + schemaExtractor[x].getTableName()); 
               System.out.println("Attribute : " + schemaExtractor[x].getAttributeNames());
+              LinkedList<String> everyAttribute = new LinkedList<String>();
+             
+              String[] splits = schemaExtractor[x].getAttributeNames().split(",");
+              for(int i=0;i<splits.length;i++)
+              {
+                  everyAttribute.add(splits[i]);
+              }
+              schemaExtractor[x].setEveryAttribute(everyAttribute);
+              System.out.println("Final Results");
+              System.out.println("Every Attribute"+schemaExtractor[x].getEveryAttribute());
+             
           }
-        
+       
           setProceedure();
-        
+       
           for(int y=0;y<(proceedureExtractor.length);y++)
           {
-          System.out.println("Queries : " + proceedureExtractor[y].getQuery());  
+          System.out.println("Queries : " + proceedureExtractor[y].getQuery()); 
           }
-        
+         
           setworkload();
-        
+       
           for(int z=0;z<(workloadExtractor.length);z++)
           {
-          System.out.println("Action : " + workloadExtractor[z].getAction());  
-          System.out.println("Frequency : " + workloadExtractor[z].getFrequency());  
-        
+          System.out.println("Action : " + workloadExtractor[z].getAction()); 
+          System.out.println("Frequency : " + workloadExtractor[z].getFrequency()); 
+       
           }
           for(int t=0;t<proceedureExtractor.length;t++)
           {
-            
-          String[] splits = proceedureExtractor[t].getQuery().split(" ");  
+           
+          String[] splits = proceedureExtractor[t].getQuery().split(" "); 
           String[] splits1111 = proceedureExtractor[t].getQuery().split(" ");
           System.out.println("Arpit 11111111111Splits"+splits[0]);
           if(splits[0].contentEquals("INSERT"))
@@ -450,10 +467,10 @@ public class HorticultureFinalProject{
           System.out.println("DEKDKLKDEKEDKKDKCKKDKEKFLLEDLDLDE Insert Query not Working");
           ArrayList storingBracket1Position = new ArrayList();
           ArrayList storingBracket2Position = new ArrayList();
-        
+       
           printIndexes(proceedureExtractor[t].getQuery().toString(),'(',storingBracket1Position);
           System.out.println("First Barcket Index:-"+storingBracket1Position.get(0).toString());
-        
+       
           printIndexes(proceedureExtractor[t].getQuery().toString(), ')',storingBracket2Position);
           System.out.println("Second Barcket Index:-"+storingBracket2Position.get(0).toString());
           result= proceedureExtractor[t].getQuery().substring(Integer.parseInt(storingBracket1Position.get(0).toString())+1 ,Integer.parseInt(storingBracket2Position.get(0).toString()) );
@@ -470,62 +487,62 @@ public class HorticultureFinalProject{
               ActionNames.add(workloadExtractor[t].getAction());
               FrequencyNames.add(workloadExtractor[t].getFrequency());
           }
-        
+       
           System.out.println("Table Name corresponding to Insert Statement");
           System.out.println("Query  Name corresponding to Insert Statement");
-        
-        
+       
+       
            }
           else if(splits[0].contentEquals("UPDATE"))
           {
-            
+           
               ////////////////////////////
               ArrayList storingDotPosition = new ArrayList();
               ArrayList storingQuestionMarkPosition = new ArrayList();
               ArrayList storingspacePosition=new ArrayList();
               ArrayList storingTableposition=new ArrayList();
-            
-            
-            
+           
+           
+           
               String[] split1 = proceedureExtractor[t].getQuery().toString().split("where");
               System.out.println("splits.size: " + split1.length);
-            
+           
               System.out.println("Line"+split1[0]);
               System.out.println("Line"+split1[1]);
-            
+           
               //tring[] splits1 = splits[0].split("from");
-            
+           
               printIndexes(split1[1], '.',storingDotPosition);
               printIndexes(split1[1], '?',storingQuestionMarkPosition);
               //printIndexes(splits[0], ' ',storingspacePosition);
-            
-            
-            
-            
+           
+           
+           
+           
               System.out.println("****************Dot Position Stored Display Logic*************");
               for(int i=0;i<storingDotPosition.size();i++)
               {
                   System.out.println("Values"+storingDotPosition.get(i));
               }
               System.out.println("****************Dot Position Stored Display Logic*************");
-            
-            
+           
+           
               System.out.println("****************Question Mark Position Stored Display Logic*************");
               for(int i=0;i<storingQuestionMarkPosition.size();i++)
               {
                   System.out.println("Values"+storingQuestionMarkPosition.get(i));
               }
               System.out.println("****************Question Mark Position Stored Display Logic*************");
-                
+               
               System.out.println("****************Printing values between . and ? Putting Attribute Names and Table Names*************");
               String result="";
               String QueryName="";
               int start=0;
               int end=0;
               int storeIndex=0;
-            
+           
               System.out.println("storingQuestionMarkPosition"+storingQuestionMarkPosition.size());
-            
+           
               for(int i=0;i<storingQuestionMarkPosition.size();i++)
               {
                   //start=
@@ -537,32 +554,32 @@ public class HorticultureFinalProject{
                   //AttributeNames.add("arpit");
                   ActionNames.add(workloadExtractor[t].getAction());
                   FrequencyNames.add(workloadExtractor[t].getFrequency());
-                
-            
-                
-            
+               
+           
+               
+           
               }
-            
-            
-            
-            
-            
-            
+           
+           
+           
+           
+           
+           
               ////////////////////////////
               System.out.println("UPDATE STATEMENT PENDING");
-            
+           
           }
           else
           {
               computePartition(proceedureExtractor[t].getQuery(),t);
           }
           }
-        
+       
           System.out.println("Final Output");
-        
+       
           for(int i=0;i<AttributeNames.size();i++)
           {
-            
+           
               //System.out.println("splits1"+splits1[1]);
               //System.out.println("Result:-"+result);
               System.out.println("Records"+i);
@@ -573,7 +590,7 @@ public class HorticultureFinalProject{
               System.out.println("Frequency Name Values:-"+FrequencyNames.get(i));
               //System.out.println("Table Name Values:-"+TableNames.get(i));
           }
-        
+       
           for(int i=0;i<TableNames.size();i++)
           {
               //System.out.println("splits1"+splits1[1]);
@@ -584,13 +601,13 @@ public class HorticultureFinalProject{
           for(int i=0;i<QueryNames.size();i++)
           {
               //System.out.println("Result:-"+result);
-            
+           
           }
           System.out.println("Final Output");
-        
-        
+       
+       
          }
-   
   
+ 
     public static void main (String argv []){
         actuallogic();}}

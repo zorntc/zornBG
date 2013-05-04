@@ -158,4 +158,15 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 			(ret < 0)? -1 : 0; 
 	}
 
+	public void setSecondCdt(int schemaExtractorIndex) {
+		Iterator<String> ite;
+		
+		this.secondCdt.addAll(HorticultureFinalProject.schemaExtractor[schemaExtractorIndex].getEveryAttribute());
+		ite = this.secondCdt.iterator();
+		while(ite.hasNext()){
+			if(this.modifiedCol.contains(ite.next().toLowerCase()))
+				ite.remove();
+		}
+	}
+
 }
