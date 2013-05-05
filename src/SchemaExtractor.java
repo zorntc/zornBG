@@ -21,11 +21,9 @@ public class SchemaExtractor
         this.attributeNames = attributeNames;
     }
    
-    // need Arpit to finish this two parts FIXME
     /* Zorn added start */
     private LinkedList<String> everyAttribute = new LinkedList<String>(); // need
     public LinkedList<String> getEveryAttribute() {
-//        everyAttribute.add("userid");    // fake one for all the tables currently. FIXME
         return everyAttribute;
     }
    

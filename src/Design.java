@@ -5,12 +5,14 @@ public class Design {
 	// environmental parameter, how many servers can contain a partitioned table 
 	static final int num_partitions = 20;
 
+	static Boolean[] questionMark = {};
 	static boolean[] readOnly = {};
 	static int[] workloadCnt = {};
 	static String[] actionName = {};
 	static String[] column = {};
 	static String[] queryCommand = {};
 	static String[] table = {};
+	
 
 	// cost model calculating
 	static int distTranscationCount;
@@ -77,6 +79,8 @@ public class Design {
 	public static String isArgLengthEqual(){
 		return (workloadCnt.length != actionName.length)? "workloadCnt or actionName" :
 			(workloadCnt.length != readOnly.length)? "readOnly" :
+			(workloadCnt.length != questionMark.length)? "questionMark" :
+			(workloadCnt.length != queryCommand.length)? "queryCommand" :
 			(workloadCnt.length != column.length)? "column" :
 			(workloadCnt.length != table.length)? "table" : null;
 	}
@@ -184,6 +188,9 @@ public class Design {
 		int i;
 		Procedure pr = null;
 		for(i = 0; i < column.length; i++){
+			if(!questionMark[i])
+				continue;
+			
 			pr = null;
 			for(Procedure p : routAtrrList){
 				if(!p.name.equals(actionName[i]))
@@ -583,6 +590,7 @@ static void passArgumets(){
 	HorticultureFinalProject.main(nil);
 
 	// Get entries from HorticultureFinalProject
+	questionMark = HorticultureFinalProject.getQuestionList(questionMark);
 	column = HorticultureFinalProject.getAttributeNames(column);
 	table = HorticultureFinalProject.getTableNames(table);
 	queryCommand = HorticultureFinalProject.getQueryNames(queryCommand);

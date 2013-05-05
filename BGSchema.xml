@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Tables>
-	<Table>
-		<Name>User</Name>
-		<Attributes>userid(1),USERNAME(2),PW(3),FNAME(4),LNAME(5),GENDER(6),DOB(7),JDATE(8),LDATE(9),ADDRESS(9),EMAIL(10),TEL(11),confCnt(12),pendCnt(13),rscCnt(14)</Attributes>
-	</Table>
-	<Table>
-		<Name>confFriendship</Name>
-		<Attributes>inviterid(1),inviteeid(2)</Attributes>
-	</Table>
-	<Table>
-		<Name>pendFriendship</Name>
-		<Attributes>inviterid(1),inviteeid(2)</Attributes>
-	</Table>
-	<Table>
-		<Name>Resources</Name>
-		<Attributes>rid(1),creatorid(2),walluserid(3),body(4),doc(5)</Attributes>
-	</Table>
-	<Table>
-		<Name>Manipulation</Name>
-		<Attributes>mid(1),modifierid(2),rid(3),resourcecreatorid(4),timestamp(5),type(6),content(11)</Attributes>
-	</Table>
+    <Table>
+        <Name>User</Name>
+        <Attributes>userid,USERNAME,PW,FNAME,LNAME,GENDER,DOB,JDATE,LDATE,ADDRESS,EMAIL,TEL,confCnt,pendCnt,rscCnt</Attributes>
+    </Table>
+    <Table>
+        <Name>confFriendship</Name>
+        <Attributes>inviterid,inviteeid</Attributes>
+    </Table>
+    <Table>
+        <Name>pendFriendship</Name>
+        <Attributes>inviterid,inviteeid</Attributes>
+    </Table>
+    <Table>
+        <Name>Resources</Name>
+        <Attributes>rid,creatorid,walluserid,body,doc</Attributes>
+    </Table>
+    <Table>
+        <Name>Manipulation</Name>
+        <Attributes>mid,modifierid,rid,resourcecreatorid,timestamp,type,content</Attributes>
+    </Table>
 </Tables>
-

@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.w3c.dom.*;
@@ -12,6 +13,9 @@ import org.xml.sax.SAXParseException;
 
 public class HorticultureFinalProject{
 
+	
+	static HashMap<String, String> tableHash;
+	
 	static SchemaExtractor[] schemaExtractor= new SchemaExtractor[5];
 	public static SchemaExtractor[] getSchemaExtractor() {
 		return schemaExtractor;
@@ -119,7 +123,7 @@ public class HorticultureFinalProject{
 		try {
 			DocumentBuilderFactory odbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder odb =  odbf.newDocumentBuilder();
-			Document odoc = odb.parse (new File("Proceedure.xml"));
+			Document odoc = odb.parse (new File("Procedure.xml"));
 			odoc.getDocumentElement ().normalize ();
 			// System.out.println ("Root element of the doc is " + odoc.getDocumentElement().getNodeName());
 			NodeList LOP = odoc.getElementsByTagName("Query");
@@ -264,6 +268,11 @@ public class HorticultureFinalProject{
 	}
 
 	/* Zorn added start */
+	static ArrayList<Boolean> questionList = new ArrayList<Boolean>();
+	public static Boolean[] getQuestionList(Boolean[] bo){
+		return questionList.toArray(bo);
+	}
+	
 	public static String[] getAttributeNames(String[] sa){
 		return AttributeNames.toArray(sa);
 	}
@@ -311,12 +320,27 @@ public class HorticultureFinalProject{
 		}
 	}
 
-	public static void computePartition(String Query,int counter)
+	public static void parsingAdd(int workloadExtractorCounter, boolean isQuestion, String QN, String tableDotAttr){
+		String split[] = tableDotAttr.split("[.]");
+		parsingAdd(workloadExtractorCounter, isQuestion, QN, tableHash.get(split[0]), split[1]);
+	}
+	
+	public static void parsingAdd(int workloadExtractorCounter, boolean isQuestion, String QN, String table, String Attr){
+		ActionNames.add(workloadExtractor[workloadExtractorCounter].getAction());
+		FrequencyNames.add(workloadExtractor[workloadExtractorCounter].getFrequency());
+		questionList.add(isQuestion);
+		QueryNames.add(QN);
+		TableNames.add(table);
+		AttributeNames.add(Attr);
+	}
+	
+	public static void computePartition(String Query,int counter)	// SELECT, DELETE
 	{
+		/* zorn start */
+		int j;
 		ArrayList<Integer> storingDotPosition = new ArrayList<Integer>();
 		ArrayList<Integer> storingQuestionMarkPosition = new ArrayList<Integer>();
 		ArrayList<Integer> storingspacePosition=new ArrayList<Integer>();
-		ArrayList<Integer> storingTableposition=new ArrayList<Integer>();
 
 		System.out.println("*******************Proceedure Partition Analyzation*******************************");
 		System.out.println("Input Query::-"+Query);
@@ -333,13 +357,52 @@ public class HorticultureFinalProject{
 		printIndexes(splits[1], '.',storingDotPosition);
 		printIndexes(splits[1], '?',storingQuestionMarkPosition);
 		printIndexes(splits[0], ' ',storingspacePosition);
-
+		
+		/* zorn added */
+		
 		// splits[0] : "SELECT u.* from USER u, PENDFRIENDSHIP f" 
 		// splits[1] : " f.InviteeID=? AND u.UserID = f.inviteeID"
 		// splits1[0] : "SELECT u.*" 
 		// splits1[1] : " USER u, PENDFRIENDSHIP f "
 		// splits1[0] from splits1[1] where splits[1]
 
+		// parsing query type	(SELECT, DELETE) 
+		String querySplit[] = splits1[0].trim().split("\\s+");
+		String queryType = querySplit[0];
+		
+		// parsing table	(hash map, u = user)
+		tableHash = new HashMap<String, String>();
+		String tableSplit[] = splits1[1].trim().replace(',', ' ').split("\\s+");
+		for(j = 0; j < tableSplit.length; j += 2)
+			tableHash.put(tableSplit[j+1], tableSplit[j]);
+		if(j != tableSplit.length)
+			System.err.println("ERROR parsing table: Check AGAIN this input: " + Query);
+		
+		// predicate 
+		String linkEqual = splits[1].replaceAll("\\s*=\\s*", "=");
+		String prediSplit[] = linkEqual.trim().split("\\s+");
+		String equalSplit[] = {};
+		for(j = 0; j < prediSplit.length; j++){
+			if(!prediSplit[j].contains("."))
+				continue;	// AND, OR, LIMIT etc.
+			
+			equalSplit = prediSplit[j].split("=");	// at most has 2 split
+			if(equalSplit.length <= 1){
+				parsingAdd(counter, false, queryType, equalSplit[0]);
+				continue;
+			}
+			
+			if(equalSplit[0].contains("?"))
+				parsingAdd(counter, true, queryType, equalSplit[1]);
+			else if(equalSplit[1].contains("?"))
+				parsingAdd(counter, true, queryType, equalSplit[0]);
+			else{
+				parsingAdd(counter, false, queryType, equalSplit[0]);
+				parsingAdd(counter, false, queryType, equalSplit[1]);
+			}
+		}
+		
+		/* zorn hide
 		System.out.println("****************Dot Position Stored Display Logic*************");
 		for(int i=0;i<storingDotPosition.size();i++)
 		{
@@ -409,6 +472,7 @@ public class HorticultureFinalProject{
 
 
 		System.out.println("*******************Proceedure Partition Analyzation*******************************");
+		*/
 	}
 
 
@@ -474,12 +538,15 @@ public class HorticultureFinalProject{
 				System.out.println("splits.size: " + splits1.length);
 				for(int i=0;i<splits1.length;i++)
 				{
+					/* zorn hide
 					AttributeNames.add(splits1[i]);
 					QueryNames.add("Insert");
 					TableNames.add(splits1111[2]);
 					System.out.println("number"+splits1[i]);
 					ActionNames.add(workloadExtractor[t].getAction());
 					FrequencyNames.add(workloadExtractor[t].getFrequency());
+					*/
+					parsingAdd(t, true, "Insert", splits1111[2], splits1[i]);
 				}
 
 				System.out.println("Table Name corresponding to Insert Statement");
@@ -533,6 +600,7 @@ public class HorticultureFinalProject{
 
 				for(int i=0;i<storingQuestionMarkPosition.size();i++)
 				{
+					/* zorn hides
 					//start=
 					result=split1[1].substring(Integer.parseInt(storingDotPosition.get(i).toString())+1,Integer.parseInt(storingQuestionMarkPosition.get(i).toString())-1);
 					AttributeNames.add(result);
@@ -542,8 +610,10 @@ public class HorticultureFinalProject{
 					//AttributeNames.add("arpit");
 					ActionNames.add(workloadExtractor[t].getAction());
 					FrequencyNames.add(workloadExtractor[t].getFrequency());
-
-
+					*/
+					result=split1[1].substring(Integer.parseInt(storingDotPosition.get(i).toString())+1,Integer.parseInt(storingQuestionMarkPosition.get(i).toString())-1);
+					String[] splits11111 = proceedureExtractor[t].getQuery().split(" ");
+					parsingAdd(t, true, "UPDATE", splits11111[1], result);
 
 
 				}
@@ -599,5 +669,6 @@ public class HorticultureFinalProject{
 
 	public static void main (String argv []){
 		actuallogic();
+		return;
 	}
 }

@@ -4,10 +4,10 @@
 		<syntax>Select u.* from USER u where u.userID=?</syntax>
 	</Query>
 	<Query>
-		<syntax>SELECT u.* from USER u, CONFFRIENDSHIP f where f.InviteeID=? and f.InviterID=u.UserID</syntax>
+		<syntax>SELECT u.* from USER u, CONFFRIENDSHIP f where f.InviteeID = ? and f.InviterID= u.UserID</syntax>
 	</Query>
 	<Query>
-		<syntax>SELECT u.* from USER u, PENDFRIENDSHIP f where f.InviteeID=? AND u.UserID = f.inviteeID</syntax>
+		<syntax>SELECT u.* from USER u, PENDFRIENDSHIP f where f.InviteeID=? AND u.UserID = f.inviterID</syntax>
 	</Query>
 
 	<!-- Invite Friend -->
@@ -15,7 +15,7 @@
 		<syntax>INSERT INTO pendFriendship (inviteeID, InviterID) value (?,?)</syntax>
 	</Query>
 	<Query>
-		<syntax>UPDATE User u Set pendcnt = pendcnt + 1 where u.UserID=?</syntax>
+		<syntax>UPDATE User u Set u.pendcnt = u.pendcnt + 1 where u.UserID=?</syntax>
 	</Query>
 
 	<!-- Accept Friend Request -->
@@ -29,10 +29,10 @@
 		<syntax>INSERT INTO CONFFRIENDSHIP (inviterID, inviteeID) value (?,?)</syntax>
 	</Query>
 	<Query>
-		<syntax>UPDATE User u Set pendcnt = pendcnt - 1 where u.UserID=?</syntax>
+		<syntax>UPDATE User u Set u.pendcnt = u.pendcnt - 1 where u.UserID=?</syntax>
 	</Query>
 	<Query>
-		<syntax>UPDATE User u Set confcnt = confcnt + 1 where u.UserID=? or u.userID=?</syntax>
+		<syntax>UPDATE User u Set u.confcnt = u.confcnt + 1 where u.UserID=? or u.userID=?</syntax>
 	</Query>
 
 	<!-- Reject Friend Request -->
@@ -40,7 +40,7 @@
 		<syntax>DELETE from pendFriendship f where f.inviteeID=? and f.inviterID=?</syntax>
 	</Query>
 	<Query>
-		<syntax>UPDATE User u Set pendcnt = pendcnt - 1 where u.UserID=?</syntax>
+		<syntax>UPDATE User u Set u.pendcnt = u.pendcnt - 1 where u.UserID=?</syntax>
 	</Query>
 
 	<!-- Thaw Friendship -->
@@ -51,7 +51,7 @@
 		<syntax>DELETE from CONFFRIENDSHIP f where f.inviteeID=? and f.inviterID=?</syntax>
 	</Query>
 	<Query>
-		<syntax>UPDATE User u Set pendcnt = confcnt - 1 where u.UserID=? or u.UserID=?</syntax>
+		<syntax>UPDATE User u Set u.confcnt = u.confcnt - 1 where u.UserID=? or u.UserID=?</syntax>
 	</Query>
 
 	<!-- View Top-K Resources -->
