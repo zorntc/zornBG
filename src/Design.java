@@ -4,6 +4,7 @@ public class Design {
 
 	// environmental parameter, how many servers can contain a partitioned table 
 	static final int num_partitions = 20;
+	static boolean printFreq = true;	// print workload frequency
 
 	static Boolean[] questionMark = {};
 	static boolean[] readOnly = {};
@@ -270,7 +271,10 @@ public class Design {
 					s += " [Replicated] ";
 				}
 			}
-			System.out.printf("%s\t> %s\n", s, p.name);
+			if(printFreq)
+				System.out.printf("%s\t> %s\t# %d\n", s, p.name, p.frequency);
+			else
+				System.out.printf("%s\t> %s\n", s, p.name);
 		}
 
 		if(printBest){
