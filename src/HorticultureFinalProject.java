@@ -1,7 +1,5 @@
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,6 +13,7 @@ public class HorticultureFinalProject{
 
 	
 	static HashMap<String, String> tableHash;
+	static HashSet<String> questionTableSet = new HashSet<String>();
 	
 	static SchemaExtractor[] schemaExtractor= new SchemaExtractor[5];
 	public static SchemaExtractor[] getSchemaExtractor() {
@@ -61,7 +60,7 @@ public class HorticultureFinalProject{
 		try {
 			DocumentBuilderFactory odbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder odb =  odbf.newDocumentBuilder();
-			Document odoc = odb.parse (new File("workload.xml"));
+			Document odoc = odb.parse (new File(Env.workloadIn));
 			odoc.getDocumentElement ().normalize ();
 			// System.out.println ("Root element of the doc is " + odoc.getDocumentElement().getNodeName());
 			NodeList LOP = odoc.getElementsByTagName("Action");
@@ -123,7 +122,7 @@ public class HorticultureFinalProject{
 		try {
 			DocumentBuilderFactory odbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder odb =  odbf.newDocumentBuilder();
-			Document odoc = odb.parse (new File("Procedure.xml"));
+			Document odoc = odb.parse (new File(Env.procedureIn));
 			odoc.getDocumentElement ().normalize ();
 			// System.out.println ("Root element of the doc is " + odoc.getDocumentElement().getNodeName());
 			NodeList LOP = odoc.getElementsByTagName("Query");
@@ -171,7 +170,7 @@ public class HorticultureFinalProject{
 		try {
 			DocumentBuilderFactory odbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder odb =  odbf.newDocumentBuilder();
-			Document odoc = odb.parse (new File("BGSchema.xml"));
+			Document odoc = odb.parse (new File(Env.schemaIn));
 			odoc.getDocumentElement ().normalize ();
 			// System.out.println ("Root element of the doc is " + odoc.getDocumentElement().getNodeName());
 			NodeList LOP = odoc.getElementsByTagName("Table");
@@ -322,7 +321,10 @@ public class HorticultureFinalProject{
 
 	public static void parsingAdd(int workloadExtractorCounter, boolean isQuestion, String QN, String tableDotAttr){
 		String split[] = tableDotAttr.split("[.]");
-		parsingAdd(workloadExtractorCounter, isQuestion, QN, tableHash.get(split[0]), split[1]);
+		String th = tableHash.get(split[0]);
+		if(isQuestion)
+			questionTableSet.add(th);
+		parsingAdd(workloadExtractorCounter, isQuestion, QN, th, split[1]);
 	}
 	
 	public static void parsingAdd(int workloadExtractorCounter, boolean isQuestion, String QN, String table, String Attr){
@@ -332,6 +334,28 @@ public class HorticultureFinalProject{
 		QueryNames.add(QN);
 		TableNames.add(table);
 		AttributeNames.add(Attr);
+	}
+	
+	private static void parsingRemove(int index) {
+		ActionNames.remove(index);
+		FrequencyNames.remove(index);
+		questionList.remove(index);
+		QueryNames.remove(index);
+		TableNames.remove(index);
+		AttributeNames.remove(index);
+	}
+		
+	
+	private static void clearQuestionMarkAttr(int addCnt) {
+		int i;
+		for(i = questionList.size() - addCnt; i < questionList.size(); i++){
+			if(questionList.get(i))
+				continue;
+			if(questionTableSet.contains(TableNames.get(i))){
+				parsingRemove(i);
+				i--;
+			}
+		}
 	}
 	
 	public static void computePartition(String Query,int counter)	// SELECT, DELETE
@@ -382,6 +406,8 @@ public class HorticultureFinalProject{
 		String linkEqual = splits[1].replaceAll("\\s*=\\s*", "=");
 		String prediSplit[] = linkEqual.trim().split("\\s+");
 		String equalSplit[] = {};
+		int addCnt = 0;		// count how many new columns added
+		questionTableSet.clear();
 		for(j = 0; j < prediSplit.length; j++){
 			if(!prediSplit[j].contains("."))
 				continue;	// AND, OR, LIMIT etc.
@@ -389,17 +415,24 @@ public class HorticultureFinalProject{
 			equalSplit = prediSplit[j].split("=");	// at most has 2 split
 			if(equalSplit.length <= 1){
 				parsingAdd(counter, false, queryType, equalSplit[0]);
+				addCnt++;
 				continue;
 			}
 			
-			if(equalSplit[0].contains("?"))
+			if(equalSplit[0].contains("?")){
 				parsingAdd(counter, true, queryType, equalSplit[1]);
-			else if(equalSplit[1].contains("?"))
+				addCnt++;
+			}
+			else if(equalSplit[1].contains("?")){
 				parsingAdd(counter, true, queryType, equalSplit[0]);
+				addCnt++;
+			}
 			else{
 				parsingAdd(counter, false, queryType, equalSplit[0]);
 				parsingAdd(counter, false, queryType, equalSplit[1]);
+				addCnt += 2;
 			}
+			clearQuestionMarkAttr(addCnt);	// remove columns with the same table name
 		}
 		
 		/* zorn hide

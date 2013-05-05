@@ -3,8 +3,8 @@ import java.util.*;
 public class Design {
 
 	// environmental parameter, how many servers can contain a partitioned table 
-	static final int num_partitions = 20;
-	static boolean printFreq = true;	// print workload frequency
+	static final int num_partitions = Env.num_partitions;
+	static final boolean printFreq = Env.printFreq;	// print workload frequency
 
 	static Boolean[] questionMark = {};
 	static boolean[] readOnly = {};
@@ -31,12 +31,12 @@ public class Design {
 	public void setReplicationList(LinkedList<Table> replicationList) {
 		this.replicationList = replicationList;
 	}
-
+/* ZT
 	LinkedList<Table> tableList = new LinkedList<Table>();
 	public void setTableList(LinkedList<Table> tableList) {
 		this.tableList = tableList;
 	}
-
+*/
 	LinkedList<Procedure> routAtrrList = new LinkedList<Procedure>();
 	public void setRoutAtrrList(LinkedList<Procedure> routAtrrList) {
 		this.routAtrrList = routAtrrList;
@@ -50,17 +50,20 @@ public class Design {
 
 		this.replicationList = new LinkedList<Table>(d.replicationList);
 		
-		if(d.partitionList.isEmpty() && d.replicationList.isEmpty())
-			this.tableList = new LinkedList<Table>(d.tableList);
-		else{
+//		if(d.partitionList.isEmpty() && d.replicationList.isEmpty())
+// ZT			this.tableList = new LinkedList<Table>(d.tableList);
+/*		else{
 			for(Table ta : d.partitionList)
 				this.tableList.add(ta);
-//			this.tableList = new LinkedList<Table>(d.replicationList);
+			for(Table ta : d.replicationList)
+				this.tableList.add(ta);
 		}
+//		this.tableList = new LinkedList<Table>(d.replicationList);
+	*/	
 		
-		for(Procedure p : d.routAtrrList){
+		for(Procedure p : d.routAtrrList)
 			this.routAtrrList.add(new Procedure(p));
-		}
+		
 		this.num_tables = d.num_tables;
 	}
 
@@ -116,6 +119,8 @@ public class Design {
 			if(!readOnly[i]){
 				ta.replication = false;
 				ta.modifiedCol.add(column[i]);
+				if(queryCommand[i].equalsIgnoreCase("DELETE"))
+					ta.hasDelete = true;
 			}
 
 			if(LNS.memoryEfficient)
@@ -140,6 +145,10 @@ public class Design {
 			if(i >= HorticultureFinalProject.schemaExtractor.length)
 				System.err.println("table name not found");
 
+			// modifiedCol is all attributes if it's a DELETE
+			if(t.hasDelete)
+				t.modifiedCol.addAll(HorticultureFinalProject.schemaExtractor[i].getEveryAttribute());
+			
 			if(!LNS.memoryEfficient)
 				t.setSecondCdt(i);
 
@@ -184,10 +193,12 @@ public class Design {
 		}
 
 		num_tables = partitionList.size() + replicationList.size();
+/* ZT
 		for(Table ta: partitionList)
 			tableList.add(ta);
 		for(Table ta: replicationList)
 			tableList.add(ta);
+			*/
 	}
 
 	private void routingAttr(){

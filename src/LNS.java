@@ -3,13 +3,9 @@ import java.util.*;
 public class LNS {
 
 	// environmental parameters
-		/* 
-		 * false to run normal Horticulture
-		 * true to run memory efficient version
-		 */
-	public static final boolean memoryEfficient = true;
-	private static final double smallPenaltyFactor = 0.0000001D;
-	static final int MAX_NO_IMPROVE_ROUND = 1000;
+	public static final boolean memoryEfficient = Env.memoryEfficient;
+	private static final double smallPenaltyFactor = Env.smallPenaltyFactor;
+	static final int MAX_NO_IMPROVE_ROUND = Env.MAX_NO_IMPROVE_ROUND;
 	
 	static int noImproveRnd = 0;		// global counter for noImproveRnd;
 
@@ -126,15 +122,10 @@ public class LNS {
 				|| (current.tableList.get(tableIndex).attrCdt.size() == 0))
 			System.err.println("Something Wrong with fixRelaxTable()");
 		*/
-		Table tmp = current.tableList.get(tableIndex);
+		Table tmp = current.partitionList.get(tableIndex);
 		// use all attrCdt to set routing attribute
 		for(String attrC: tmp.attrCdt){	
-			// first search not appending 2nd index when using less memory
-			tmp.fixRelaxPartitionAttr(attrC, (LNS.memoryEfficient)? false : true); 
-			if(fixRelaxTable(tableIndex + 1, localPartSize))
-				ret = true;
-			
-			tmp.fixRelaxPartitionAttr(attrC, (LNS.memoryEfficient)? true : false);
+			tmp.fixRelaxPartitionAttr(attrC);
 			if(fixRelaxTable(tableIndex + 1, localPartSize))
 				ret = true;
 		}
@@ -142,7 +133,7 @@ public class LNS {
 		int i;
 		// replicate originally partitioned table
 		tmp.replication = true;
-		current.tableList.remove(tableIndex);
+//zt		current.tableList.remove(tableIndex);
 		current.partitionList.remove(tableIndex);
 		current.replicationList.addFirst(tmp);
 		
@@ -158,7 +149,7 @@ public class LNS {
 		
 		current.replicationList.removeFirst();
 		current.partitionList.add(tableIndex, tmp);
-		current.tableList.add(tableIndex, tmp);
+//zt		current.tableList.add(tableIndex, tmp);
 		tmp.replication = false;
 		
 		return ret;
