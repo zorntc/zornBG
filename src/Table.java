@@ -104,6 +104,10 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 			partitionAttr = "NIL";
 		if(secIndex.size() == 0)
 			secIndex.add("NIL");
+		if(LNS.memoryEfficient){
+			secIndex.clear();
+			secIndex.add("NIL");
+		}
 	}
 
 	// Return partition attribute and secondary index.
@@ -128,12 +132,15 @@ class Table implements Comparable<Table>{	// compare tables base on temperature 
 		return ret;
 	}
 
-	public void fixRelaxPartitionAttr(String attrC) {
+	public void fixRelaxPartitionAttr(String attrC, boolean putSecIndex) {
 		secIndex.clear();
+		
+		if(putSecIndex){
 		secIndex.addAll(secondCdt);
 		secIndex.remove(attrC);
 		if(secIndex.size() == 0)
 			secIndex.add("NIL");
+		}
 	
 		partitionAttr = attrC;
 	}

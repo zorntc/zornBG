@@ -49,7 +49,15 @@ public class Design {
 			this.partitionList.add(new Table(ta));
 
 		this.replicationList = new LinkedList<Table>(d.replicationList);
-		this.tableList = new LinkedList<Table>(d.tableList);
+		
+		if(d.partitionList.isEmpty() && d.replicationList.isEmpty())
+			this.tableList = new LinkedList<Table>(d.tableList);
+		else{
+			for(Table ta : d.partitionList)
+				this.tableList.add(ta);
+//			this.tableList = new LinkedList<Table>(d.replicationList);
+		}
+		
 		for(Procedure p : d.routAtrrList){
 			this.routAtrrList.add(new Procedure(p));
 		}
@@ -134,9 +142,6 @@ public class Design {
 
 			if(!LNS.memoryEfficient)
 				t.setSecondCdt(i);
-
-			// TODO enable this when Arpit finished
-			// t.setNumTxn(HorticultureFinalProject.schemaExtractor[i].getTxnCnt());
 
 			partitionList.add(t);
 		}

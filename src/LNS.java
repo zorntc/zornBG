@@ -129,7 +129,12 @@ public class LNS {
 		Table tmp = current.tableList.get(tableIndex);
 		// use all attrCdt to set routing attribute
 		for(String attrC: tmp.attrCdt){	
-			current.tableList.get(tableIndex).fixRelaxPartitionAttr(attrC);
+			// first search not appending 2nd index when using less memory
+			tmp.fixRelaxPartitionAttr(attrC, (LNS.memoryEfficient)? false : true); 
+			if(fixRelaxTable(tableIndex + 1, localPartSize))
+				ret = true;
+			
+			tmp.fixRelaxPartitionAttr(attrC, (LNS.memoryEfficient)? true : false);
 			if(fixRelaxTable(tableIndex + 1, localPartSize))
 				ret = true;
 		}
