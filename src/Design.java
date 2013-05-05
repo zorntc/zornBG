@@ -318,7 +318,6 @@ public class Design {
 		table = HorticultureFinalProject.getTableNames(table);
 		distTranscationCount=0;
 		partitioncount=0;
-		int index=0;
 		System.out.println("\n Schema Extractor Logic");
 		SchemaExtractor[] schemaExtractor= new SchemaExtractor[5];
 		schemaExtractor=HorticultureFinalProject.getSchemaExtractor();
@@ -328,11 +327,6 @@ public class Design {
 			System.out.println("Attribute : " + schemaExtractor[x].getAttributeNames());
 		}
 		System.out.println("\n Schema Extractor Logic");
-		String[] splits,splits1,splits2;
-		String result=null;
-		boolean shouldAdd = false;
-		boolean writereplication=false;
-		boolean found = false;
 
 
 		System.out.println("\n ****************UNIT TESTING**********************************************");
